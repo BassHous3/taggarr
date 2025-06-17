@@ -2,7 +2,7 @@
 _Found this project helpful? Slap that star ⭐️ at the top right corner!_
 ##
 <br>
-<img width="110px" src="taggarr_logo_whitebackground_round.png" alt=""></img> 
+<img width="110px" src=".images/taggarr_logo_whitebackground_round.png" alt=""></img> 
 
 ## TAGGARR
 
@@ -43,7 +43,9 @@ The current main purpose of Taggarr, is to have the option to filter your shows 
 > 2. **Config**  
 > Make sure to add the root location of your TV content, Sonarr API + URL and the right configs (Check yml file config below).
 > 3. **Logs**  
-> Add `/var/logs` as volume for logs. They will be saved under `taggarr.log`.
+> Add `/var/log/taggarr` as volume for logs. They will be saved under `taggarr.log`.
+> 4. **Media players**  
+> After tags applied, scan TV libaray's metadata using `Replace all metadata`.
 
 <br>
 
@@ -57,15 +59,28 @@ The current main purpose of Taggarr, is to have the option to filter your shows 
 > - Coding is only a hobby of mine and I am still learning, use this program at your own discretion.
 > - Make sure to read the documentation properly.
 
-# Credits
+<br>
+
+## CREDITS
 Special thanks for inspiration goes to:
 - [Cleanuperr](https://github.com/flmorg/cleanuperr)
 - [Sonarr](https://github.com/Sonarr/Sonarr) & [Radarr](https://github.com/Radarr/Radarr)
 
-# Buy me a coffee
+<br>
+
+## BUY ME COFFEE
 Did my work touch your heart ❤️ and wish to contribute a little? consider buying me a warm cup of coffee!
 
 <a href="https://ko-fi.com/basshouse" target="_blank"><img src="https://cdn.prod.website-files.com/5c14e387dab576fe667689cf/670f5a0172b90570b1c21dab_kofi_logo.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 150px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+
+
+<br><br>
+## HOW TO USE TAG FILTERING
+## Sonarr
+<img width="510px" src=".images/sonarr_.jpg" alt=""></img>
+<br><br>
+## Emby & Jellyfin
+<img width="510px" src=".images/emby.png" alt=""></img>  <img width="250px" src=".images/jellyfin.jpg" alt=""></img> 
 
 
 
