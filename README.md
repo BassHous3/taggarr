@@ -17,7 +17,7 @@
 
 Started this project for the exact questions above, that I had. I felt other people could make use of it as well and here we are.
 
-Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in English (ONLY! Stay tuned for updates) or not. If Taggarr finds another language it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging.
+Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in English or not. If Taggarr finds another language it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging.
 
 This way, you can filter your shows based on if they're dubbed or not, using tags within your Sonarr (for managing) or any media player that supports tag (for watching). Taggarr will also save all the information in a JSON file and will tell you which show and language is the wrong-dub.
 
