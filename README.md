@@ -2,7 +2,7 @@
 <h2 align="center">Taggarr - Dub Analysis & Tagging</h2> 
 
 <p align="center">
-  <img src=".images/taggarr_logo_transparent.png" alt="Taggarr Logo" width="150" height="150">
+  <img src="assets/logo/taggarr_logo_transparent.png" alt="Taggarr Logo" width="150" height="150">
 </p>
 
 > [!TIP]
@@ -196,10 +196,10 @@ services:
   
 
 ## Sonarr
-<img width="522px" src=".images/sonarr_.jpg" alt=""></img>
+<img width="550px" src="assets/images/sonarr_.jpg" alt=""></img>
 <br><br>
 ## Emby & Jellyfin
-<img width="522px" src=".images/emby.png" alt=""></img>  <img width="250px" src=".images/jellyfin.jpg" alt=""></img> 
+<img width="522px" src="assets/images/emby.png" alt=""></img>  <img width="250px" src="assets/images/jellyfin.jpg" alt=""></img> 
 
 </details>
 
