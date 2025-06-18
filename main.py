@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Sonarr Tagging Tool"
 __author__ = "BASSHOUS3"
-__version__ = "0.2.22" # WRITE_MODE added and ENV VARs updated.
+__version__ = "0.2.23"
 
 import re
 import os
@@ -223,9 +223,9 @@ def main(opts=None):
         parser.add_argument('--dry-run', action='store_true')
         opts = parser.parse_args()
 
-    logger.info(f"Taggarr v{__version__} started...")
+    logger.info(f"Taggarr v{__version__} started.")
     time.sleep(1)
-    logger.info(f"Initializing with options: {opts}...")
+    logger.debug(f"Initializing with options: {opts}...")
     time.sleep(3)
     quick_mode = opts.quick or QUICK_MODE
     dry_run = opts.dry_run
@@ -305,7 +305,7 @@ def main(opts=None):
 
     save_taggarr(taggarr)
     logger.info("✅ Finished taggarr scan.")
-    logger.info(f"Next scan is in {RUN_INTERVAL_SECONDS/60/60} hours...")
+    logger.info(f"Next scan is in {RUN_INTERVAL_SECONDS/60/60} hours.")
 
 
 if __name__ == '__main__':
