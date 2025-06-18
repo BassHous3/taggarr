@@ -50,14 +50,14 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 ## INFO & QUICK START
 > [!NOTE]
 > **Features:**
-> - `QUICK_MODE` `(Bool)` Checks only first video of every season (optional).
-> - `TARGET_GENRE` `(Str)` Filter scan by genre. ie. `Anime` (optional).
-> - `TAG_DUB` `(Str)` Custom tag for shows that have all English audio tracks as `dub` (optional).
-> - `TAG_SEMI` `(Str)` Custom tag for shows that have some English audio tracks as `semi-dub` (optional).
-> - `TAG_WRONG` `(Str)` Custom tag for shows that have non English audio track as `wrong-dub` (optional).
-> - `RUN_INTERVAL_SECONDS` `(Int)` Custom time interval. Default is every 2 hours (optional).
-> - `DRT_RUN` `(Bool)` Not sure? Try it first, without writing any tags, JSON file will still be saved (optional).
-> - `WRITE_MODE` `(Int)` Something not working or changed your mind? Don't worry I got you covered (optional).
+> - `QUICK_MODE` `(Bool)` Checks only first video of every season.
+> - `TARGET_GENRE` `(Str)` Filter scan by genre. ie. `Anime`.
+> - `TAG_DUB` `(Str)` Custom tag for shows that have all English audio tracks as `dub`.
+> - `TAG_SEMI` `(Str)` Custom tag for shows that have some English audio tracks as `semi-dub`.
+> - `TAG_WRONG` `(Str)` Custom tag for shows that have non English audio track as `wrong-dub`.
+> - `RUN_INTERVAL_SECONDS` `(Int)` Custom time interval. Default is every 2 hours.
+> - `DRT_RUN` `(Bool)` Not sure? Try it first, without writing any tags, JSON file will still be saved.
+> - `WRITE_MODE` `(Int)` Something not working or changed your mind? Don't worry I got you covered.
 > - `WRITE_MODE=0` Works like usual.
 > - `WRITE_MODE=1` Rewrites everything, all tags and JSON file.
 > - `WRITE_MODE=2` Removes everything, all tags and JSON file.
