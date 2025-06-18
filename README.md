@@ -72,10 +72,8 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > Pull the Docker image from `docker.io/basshous3/taggarr:latest`
 > 2. **Config**  
 > Make sure to add the root location of your TV content, Sonarr API + URL and the right configs (Check yml file config below).
-> 3. **Logs**  
-> Add `/var/log/taggarr` as volume for logs. They will be saved under `taggarr.log`.
-> 4. **Media players**  
-> After tags applied, scan TV libaray's metadata using `Replace all metadata`.
+> 3. **Media players**  
+> After tags are applied, scan TV libaray's metadata using `Replace all metadata` method.
 
 <br>
 
