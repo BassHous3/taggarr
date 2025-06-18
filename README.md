@@ -1,10 +1,9 @@
 
-<h3 align="center"> Found this project helpful? Smash that star ⭐️ at the top right corner! </h3> 
+<h2 align="center">Taggarr - Dub Analysis & Sonarr Tagging</h2> 
 
-<br>
-<img width="110px" src=".images/taggarr_logo_whitebackground_round.png" alt=""></img> 
-
-<h2 align="center">TAGGARR - Dub Analysis & Sonarr Tagging</h2> 
+<p align="center">
+  <img src=".images/taggarr_logo_transparent.png" alt="Taggarr Logo" width="150" height="150">
+</p>
 
 > [!TIP]
 > 
@@ -45,6 +44,9 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 </div>
 <br>
 
+<h3 align="center"> Found this project helpful? Smash that star ⭐️ at the top right corner! </h3> 
+<br><br>
+
 ## INFO & QUICK START
 > [!NOTE]
 > **Features:**
@@ -61,6 +63,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > - `WRITE_MODE=2` Removes everything, all tags and JSON file.
 > - `START_RUNNING` `(Bool)` Start the container without initiating scan for CLI usage.
 > - Taggarr will save the information of your media in a JSON file located at root folder of your TV media.
+> - Taggarr does not scan the audio of your content. Instead, it read the name of the audio tracks.
 
 > [!IMPORTANT]
 > **Quick Start:**
