@@ -1,0 +1,28 @@
+name: Taggarr
+services:
+  taggarr:
+      image: docker.io/basshous3/taggarr:latest
+      container_name: taggarr
+      environment:
+        - SONARR_API_KEY=your_api_key #REQUIRED
+        - SONARR_URL=http://sonarr:8989 #REQUIRED
+        - ROOT_TV_PATH=/TV #REQUIRED - Also where JSON file will be saved.
+        - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
+        - START_RUNNING=true        
+        - QUICK_MODE=false
+        - DRY_RUN=false
+        - WRITE_MODE=0 #OPTIONAL - 0=NONE, 1=REWRITE, 2=REMOVE
+        - TARGET_GENRE=Anime #OPTIONAL - default is all genres
+        - TAG_DUB=dub
+        - TAG_SEMI=semi-dub
+        - TAG_WRONG_DUB=wrong-dub
+        - LOG_LEVEL=INFO  #OPTIONAL - DEBUG/INFO/WARNING/ERROR
+      volumes:
+        - /path/to/your/TV:/tv
+        - .logs:/var/log/taggarr
+      restart: unless-stopped
+      logging:
+        driver: json-file
+        options:
+          max-size: "10m"
+          max-file: "3"
