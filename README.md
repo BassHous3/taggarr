@@ -1,16 +1,18 @@
-##
-_Found this project helpful? Slap that star ⭐️ at the top right corner!_
-##
+
+<h3 align="center"> Found this project helpful? Smash that star ⭐️ at the top right corner! </h3> 
+
 <br>
 <img width="110px" src=".images/taggarr_logo_whitebackground_round.png" alt=""></img> 
 
-## TAGGARR
+<h2 align="center">TAGGARR - Dub Analysis & Sonarr Tagging</h2> 
 
 > [!TIP]
 > 
-> **Don't feel like watching subs?**
+> - **Don't feel like watching subs?**
 >
-> **You have no idea which of your content is dubbed?**
+> - **You have no idea which of your content is dubbed?**
+>
+> - **Not sure if Sonarr got the right dub?**
 >
 > **Don't worry, I got you covered.**
 
@@ -22,18 +24,42 @@ The current main purpose of Taggarr, is to have the option to filter your shows 
 
 <br>
 
+<div align="center">
+  
+<table>
+  <tr>
+    <th colspan="3" align="center">Upcoming Updates</th>
+  </tr>
+  <tr>
+    <th>Support for other languages</th>
+    <th>Support for Radarr</th>
+    <th>Filter scanning by genre</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat" alt="Not Ready" /></td>
+    <td align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat" alt="Not Ready" /></td>
+    <td align="center"><img src="https://img.shields.io/badge/Status-Ready-green?style=flat" alt="Ready" /></td>
+  </tr>
+</table>
+
+</div>
+<br>
+
 ## INFO & QUICK START
 > [!NOTE]
 > **Features:**
-> - **Filter** scan by genre. ie. `Anime` (optional).
-> - **Quick** scan option (checks only first video of every season) `QUICK_MODE=true`.
-> - **Tags** shows that have all English audio tracks as `dub`. Custon tag supported with `TAG_DUB`.
-> - **Tags** shows that have some English audio tracks as `semi-dub`. Custon tag supported with `TAG_SEMI`.
-> - **Tags** shows that have non English audio track as `wrong-dub`. Custon tag supported with `TAG_WRONG`.
-> - **Interval scans**. Default is every 2 hours. Custom time interval supported with `RUN_INTERVAL_SECONDS`.
-> - **JSON** file Taggarr will save the information of your media in a json file located at root folder.
-> - Changed your mind? Don't worry, **remove** tags & json file with `ARG_REMOVE=true`.
-> - CLI supported as well.
+> - `DRT_RUN` `(Bool)` Not sure? Try it first, without writing any tags, JSON file will still be saved (optional).
+> - `QUICK_MODE` `(Bool)` Checks only first video of every season (optional).
+> - `TARGET_GENRE` `(Str)` Filter scan by genre. ie. `Anime` (optional).
+> - `TAG_DUB` `(Str)` Custom tag for shows that have all English audio tracks as `dub` (optional).
+> - `TAG_SEMI` `(Str)` Custom tag for shows that have some English audio tracks as `semi-dub` (optional).
+> - `TAG_WRONG` `(Str)` Custom tag for shows that have non English audio track as `wrong-dub` (optional).
+> - `RUN_INTERVAL_SECONDS` `(Int)` Custom time interval. Default is every 2 hours (optional).
+> - `WRITE_MODE` `(Int)` Something not working or changed your mind? Don't worry (optional).
+> - `WRITE_MODE=1` Rewrites everything, all tags and JSON file.
+> - `WRITE_MODE=2` Removes everything, all tags and JSON file.
+> - `START_RUNNING` `(Bool)` Start the container without initial for CLI usage (required).
+> - Taggarr will save the information of your media in a JSON file located at root folder of your media.
 
 > [!IMPORTANT]
 > **Quick Start:**
@@ -64,6 +90,7 @@ The current main purpose of Taggarr, is to have the option to filter your shows 
 ## CREDITS
 Special thanks for inspiration goes to:
 - [Cleanuperr](https://github.com/flmorg/cleanuperr)
+- [Huntarr](https://github.com/plexguide/Huntarr)
 - [Sonarr](https://github.com/Sonarr/Sonarr) & [Radarr](https://github.com/Radarr/Radarr)
 
 <br>
