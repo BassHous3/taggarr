@@ -100,15 +100,62 @@ Did my work touch your heart ❤️ and wish to contribute a little? consider bu
 
 <a href="https://ko-fi.com/basshouse" target="_blank"><img src="https://cdn.prod.website-files.com/5c14e387dab576fe667689cf/670f5a0172b90570b1c21dab_kofi_logo.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 150px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
+<br>
 
-<br><br>
-## HOW TO USE TAG FILTERING
+<details>
+  <summary><span style="font-size: 10em;"><strong>CONFIGURATION EXAMPLE</strong></span></summary>
+
+```
+name: Taggarr
+    services:
+      taggarr:
+          image: docker.io/basshous3/taggarr:latest
+          container_name: taggarr
+          icon: "https://i.imgur.com/ucRcm1X.png"
+          environment:
+            - SONARR_API_KEY=your_api_key #REQUIRED
+            - SONARR_URL=http://sonarr:8989 #REQUIRED
+            - ROOT_TV_PATH=/tv #REQUIRED, json will be saved here.
+            - LOG_LEVEL=INFO  # DEBUG/INFO/WARNING/ERROR
+            - RUN_INTERVAL_SECONDS=7200 # 2 hours (in seconds)
+            - QUICK_MODE=false 
+            - ARG_REMOVE=false
+            - ARG_REWRITE=false
+            - ARG_DRY_RUN=false
+            - ARG_START=true #REQUIRED to run
+            - TAG_DUB=dub
+            - TAG_SEMI=semi-dub
+            - TAG_WRONG_DUB=wrong-dub
+          volumes:
+            - /path/to/your/tv:/tv
+            - .logs:/var/log/taggarr
+          restart: unless-stopped
+          logging:
+            driver: json-file
+            options:
+              max-size: "10m"
+              max-file: "3" 
+  
+  ```
+
+
+</details>
+
+
+
+
+
+<details>
+<summary><span style="font-size: 10em;"><strong>HOW TO USE TAG FILTERING</strong></span></summary>
+  
+
 ## Sonarr
 <img width="510px" src=".images/sonarr_.jpg" alt=""></img>
 <br><br>
 ## Emby & Jellyfin
 <img width="510px" src=".images/emby.png" alt=""></img>  <img width="250px" src=".images/jellyfin.jpg" alt=""></img> 
 
+<details>
 
 
 
