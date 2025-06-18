@@ -1,5 +1,5 @@
 
-<h2 align="center">Taggarr - Dub Analysis & Sonarr Tagging</h2> 
+<h2 align="center">Taggarr - Dub Analysis & Tagging</h2> 
 
 <p align="center">
   <img src=".images/taggarr_logo_transparent.png" alt="Taggarr Logo" width="150" height="150">
