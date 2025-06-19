@@ -1,6 +1,6 @@
-__description__ = "Dub Analysis & Sonarr Tagging Tool"
+__description__ = "Dub Analysis & Tagging Tool."
 __author__ = "BASSHOUS3"
-__version__ = "0.2.28"
+__version__ = "0.2.30"
 import re
 import os
 import sys
@@ -136,6 +136,7 @@ def determine_tag_and_stats(show_path, quick=False):
     for entry in os.listdir(show_path):
         season_path = os.path.join(show_path, entry)
         if os.path.isdir(season_path) and entry.lower().startswith("season"):
+            logger.info(f"Scanning season: {entry}")
             stats = scan_season(season_path, quick=quick)
             dubbed_count = len(stats["dubbed"])
             wrong_dub_count = len(stats["wrong_dub"])
@@ -155,7 +156,7 @@ def determine_tag_and_stats(show_path, quick=False):
             season_stats[entry] = stats
 
     for season in sorted(season_stats.keys()):
-        logger.info(f"Scanning season: {season}")
+######
         seasons[season] = season_stats[season]
 
     if has_wrong_dub:
@@ -230,9 +231,9 @@ def main(opts=None):
         parser.add_argument('--quick', action='store_true')
         parser.add_argument('--dry-run', action='store_true')
         opts = parser.parse_args()
-
+    logger.info(f"Taggerr - {__description__}")
     logger.info(f"Taggarr v{__version__} started.")
-    time.sleep(3)
+    time.sleep(4)
     logger.debug(f"Initializing with options: {opts}...")
     time.sleep(3)
     quick_mode = opts.quick
@@ -302,6 +303,11 @@ def main(opts=None):
 
         if tag:
             tag_sonarr(sid, tag, dry_run=dry_run)
+            if tag == TAG_WRONG_DUB:
+                tag_sonarr(sid, TAG_DUB, remove=True, dry_run=dry_run)
+                tag_sonarr(sid, TAG_SEMI, remove=True, dry_run=dry_run)
+            elif tag == TAG_SEMI:
+                tag_sonarr(sid, TAG_DUB, remove=True, dry_run=dry_run)
 
         taggarr["series"][normalized_path] = {
             "display_name": show,
@@ -318,6 +324,7 @@ def main(opts=None):
 
     save_taggarr(taggarr)
     logger.info("✅ Finished Taggarr scan.")
+    logger.info(f"You don't have all the dubs? Checkout Huntarr.io to hunt them for you!")
     logger.info(f"Next scan is in {RUN_INTERVAL_SECONDS/60/60} hours.")
 
 
