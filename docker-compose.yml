@@ -6,7 +6,7 @@ services:
       environment:
         - SONARR_API_KEY=your_api_key #REQUIRED
         - SONARR_URL=http://sonarr:8989 #REQUIRED
-        - ROOT_TV_PATH=/TV #REQUIRED - Also where JSON file will be saved.
+        - ROOT_TV_PATH=/tv #REQUIRED - Point it to your container volume.
         - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
         - START_RUNNING=true        
         - QUICK_MODE=false
@@ -18,7 +18,7 @@ services:
         - TAG_WRONG_DUB=wrong-dub
         - LOG_LEVEL=INFO  #OPTIONAL - DEBUG/INFO/WARNING/ERROR
       volumes:
-        - /path/to/your/TV:/tv
+        - /path/to/your/TV:/tv 
         - .logs:/var/log/taggarr
       restart: unless-stopped
       logging:

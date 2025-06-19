@@ -1,6 +1,7 @@
 __description__ = "Dub Analysis & Tagging Tool."
 __author__ = "BASSHOUS3"
 __version__ = "0.2.30"
+
 import re
 import os
 import sys
