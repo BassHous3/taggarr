@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Sonarr Tagging Tool"
 __author__ = "BASSHOUS3"
-__version__ = "0.2.27"
+__version__ = "0.2.28"
 import re
 import os
 import sys
@@ -88,7 +88,7 @@ def save_taggarr(data):
         )
         with open(TAGGARR_JSON_PATH, 'w') as f:
             f.write(compact_json)
-        logger.debug("taggarr.json saved successfully.")
+        logger.debug("✅ taggarr.json saved successfully.")
     except Exception as e:
         logger.warning(f"Failed to save taggarr.json: {e}")
 
@@ -251,15 +251,16 @@ def main(opts=None):
     logger.info("Starting taggarr scan...")
     time.sleep(3)
     taggarr = load_taggarr()
+    logger.debug(f"Available paths in JSON: {list(taggarr['series'].keys())[:5]}")
 
     for show in sorted(os.listdir(ROOT_TV_PATH)):
         show_path = os.path.join(ROOT_TV_PATH, show)
         show_path = os.path.abspath(show_path)
         if not os.path.isdir(show_path):
             continue
-
+        normalized_path = show_path
+        last_saved = taggarr["series"].get(normalized_path, {}).get("last_modified", 0)
         current_mtime = os.path.getmtime(show_path)
-        last_saved = taggarr["series"].get(show_path, {}).get("last_modified", 0)
 
         logger.debug(f"{show}: current_mtime={current_mtime}, last_saved={last_saved}")
 
@@ -302,20 +303,21 @@ def main(opts=None):
         if tag:
             tag_sonarr(sid, tag, dry_run=dry_run)
 
-        taggarr["series"][show_path] = {
+        taggarr["series"][normalized_path] = {
             "display_name": show,
             "tag": tag or "none",
             "last_scan": datetime.utcnow().isoformat() + "Z",
             "seasons": seasons,
             "last_modified": current_mtime
         }
-
+        logger.debug(f"Normalized show_path: {show_path}")
+        logger.debug(f"Saved series info under normalized path: {normalized_path}")
         if write_mode == 1:
             refresh_sonarr_series(sid, dry_run=dry_run)
             time.sleep(0.5)
 
     save_taggarr(taggarr)
-    logger.info("✅ Finished taggarr scan.")
+    logger.info("✅ Finished Taggarr scan.")
     logger.info(f"Next scan is in {RUN_INTERVAL_SECONDS/60/60} hours.")
 
 
@@ -327,12 +329,12 @@ if __name__ == '__main__':
     opts = parser.parse_args()
 
     if START_RUNNING:
-        logger.info("START_RUNNING is true. Running initial scan...")
+        logger.debug("START_RUNNING is true. Running initial scan...")
         run_loop(opts)
     elif any(vars(opts).values()):
-        logger.info("CLI args passed. Running one-time scan...")
+        logger.debug("CLI args passed. Running one-time scan...")
         main(opts)
     else:
-        logger.info("START_RUNNING is false and no CLI args passed. Waiting for commands...")
+        logger.debug("START_RUNNING is false and no CLI args passed. Waiting for commands...")
         while True:
             time.sleep(RUN_INTERVAL_SECONDS)
