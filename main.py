@@ -1,7 +1,6 @@
 __description__ = "Dub Analysis & Sonarr Tagging Tool"
 __author__ = "BASSHOUS3"
-__version__ = "0.2.25"
-
+__version__ = "0.2.27"
 import re
 import os
 import sys
@@ -61,15 +60,20 @@ logger = setup_logging()
 def load_taggarr():
     if os.path.exists(TAGGARR_JSON_PATH):
         try:
+            logger.info(f"taggarr.json found at {TAGGARR_JSON_PATH}")
             with open(TAGGARR_JSON_PATH, 'r') as f:
-                return json.load(f)
+                data = json.load(f)
+                logger.debug(f"Loaded taggarr.json with {len(data.get('series', {}))} entries.")
+                return data
         except Exception as e:
             logger.warning(f"taggarr.json is corrupted: {e}")
             backup_path = TAGGARR_JSON_PATH + ".bak"
             os.rename(TAGGARR_JSON_PATH, backup_path)
             logger.warning(f"Corrupted file moved to: {backup_path}")
             return {"version": 1.0, "series": {}}
+    logger.info("No taggarr.json found — starting fresh.")
     return {"version": 1.0, "series": {}}
+
 
 
 def save_taggarr(data):
@@ -250,11 +254,14 @@ def main(opts=None):
 
     for show in sorted(os.listdir(ROOT_TV_PATH)):
         show_path = os.path.join(ROOT_TV_PATH, show)
+        show_path = os.path.abspath(show_path)
         if not os.path.isdir(show_path):
             continue
 
         current_mtime = os.path.getmtime(show_path)
         last_saved = taggarr["series"].get(show_path, {}).get("last_modified", 0)
+
+        logger.debug(f"{show}: current_mtime={current_mtime}, last_saved={last_saved}")
 
         if write_mode == 0 and current_mtime <= last_saved:
             logger.info(f"🚫 Skipping {show} - no changes since last scan")
