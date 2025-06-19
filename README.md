@@ -73,8 +73,8 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 >
 > 1. **Docker**  
 > Pull the Docker image from `docker.io/basshous3/taggarr:latest`
-> 2. **Config**  
-> Make sure to add the root location of your TV content, Sonarr API + URL and the right configs (Check yml file config below).
+> 2. **Configs**  
+> Make sure to point `ROOT_TV_PATH` to your **CONTAINER** volume (not host). Check out [example of yaml configs](https://github.com/BassHous3/taggarr?tab=readme-ov-file#configuration-example)  below. 
 > 3. **Media players**  
 > After tags are applied, scan TV's library metadata using `Replace all metadata` method (leave `Replace Images` unchecked).
 
@@ -120,7 +120,7 @@ services:
       environment:
         - SONARR_API_KEY=your_api_key #REQUIRED
         - SONARR_URL=http://sonarr:8989 #REQUIRED
-        - ROOT_TV_PATH=/TV #REQUIRED - Also where JSON file will be saved.
+        - ROOT_TV_PATH=/tv #REQUIRED - Point it to your container volume.
         - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
         - START_RUNNING=true #OPTIONAL        
         - QUICK_MODE=false #OPTIONAL 
@@ -132,7 +132,7 @@ services:
         - TAG_WRONG_DUB=wrong-dub #OPTIONAL 
         - LOG_LEVEL=INFO #OPTIONAL - DEBUG/INFO/WARNING/ERROR
       volumes:
-        - /path/to/your/TV:/tv
+        - /path/to/your/TV:/tv 
         - .logs:/var/log/taggarr
       restart: unless-stopped
       logging:
