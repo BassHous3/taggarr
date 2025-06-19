@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Sonarr Tagging Tool"
 __author__ = "BASSHOUS3"
-__version__ = "0.2.23"
+__version__ = "0.2.25"
 
 import re
 import os
@@ -75,9 +75,13 @@ def load_taggarr():
 def save_taggarr(data):
     try:
         raw_json = json.dumps(data, indent=2)
-        compact_json = re.sub(r'\[\n\s+("[^"]+")(\s*,\s*"[^"]+")*\n\s+\]', 
-                              lambda m: "[" + ", ".join(i.strip() for i in m.group(0).splitlines()[1:-1]) + "]",
-                              raw_json)
+        compact_json = re.sub(
+            r'(\[\s*\n\s*)((?:\s*"E\d{2}",?\s*\n?)+)(\s*\])',
+            lambda m: '[{}]'.format(
+                ', '.join(re.findall(r'"E\d{2}"', m.group(2)))
+            ),
+            raw_json
+        )
         with open(TAGGARR_JSON_PATH, 'w') as f:
             f.write(compact_json)
         logger.debug("taggarr.json saved successfully.")
@@ -224,10 +228,10 @@ def main(opts=None):
         opts = parser.parse_args()
 
     logger.info(f"Taggarr v{__version__} started.")
-    time.sleep(1)
+    time.sleep(3)
     logger.debug(f"Initializing with options: {opts}...")
     time.sleep(3)
-    quick_mode = opts.quick or QUICK_MODE
+    quick_mode = opts.quick
     dry_run = opts.dry_run
     write_mode = opts.write_mode
 
@@ -240,7 +244,7 @@ def main(opts=None):
     if write_mode == 2:
         logger.info("Remove mode is enabled: Everything will be removed.")
 
-    logger.info("Starting taggarr scan")
+    logger.info("Starting taggarr scan...")
     time.sleep(3)
     taggarr = load_taggarr()
 
