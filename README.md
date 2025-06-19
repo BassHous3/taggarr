@@ -1,9 +1,11 @@
 
-<h2 align="center">Taggarr - Dub Analysis & Tagging</h2> 
 
 <p align="center">
-  <img src="assets/logo/taggarr_logo_transparent.png" alt="Taggarr Logo" width="150" height="150">
+  <img width="450px" src="assets/logo/banner_transparent.png" alt=""></img>
+  <p></p>
 </p>
+
+
 
 > [!TIP]
 > 
