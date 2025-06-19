@@ -1,4 +1,4 @@
-__description__ = "Dub Analysis & Tagging Tool."
+__description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
 __version__ = "0.2.30"
 
@@ -232,7 +232,8 @@ def main(opts=None):
         parser.add_argument('--quick', action='store_true')
         parser.add_argument('--dry-run', action='store_true')
         opts = parser.parse_args()
-    logger.info(f"Taggerr - {__description__}")
+    logger.info(f"Taggarr - {__description__}")
+    time.sleep(2)
     logger.info(f"Taggarr v{__version__} started.")
     time.sleep(4)
     logger.debug(f"Initializing with options: {opts}...")
@@ -325,7 +326,7 @@ def main(opts=None):
 
     save_taggarr(taggarr)
     logger.info("✅ Finished Taggarr scan.")
-    logger.info(f"You don't have all the dubs? Checkout Huntarr.io to hunt them for you!")
+    logger.info(f"ℹ️ You don't have all the dubs? Checkout Huntarr.io to hunt them for you!")
     logger.info(f"Next scan is in {RUN_INTERVAL_SECONDS/60/60} hours.")
 
 
