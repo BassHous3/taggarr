@@ -17,7 +17,7 @@
 >
 > **Don't worry, I got you covered.**
 
-Started this project for the same exact questions above, that I had. I felt other people could make use of it as well and here we are.
+Started this project for the exact same questions. I felt other people could make use of it as well and here we are.
 
 Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in English or not. If Taggarr finds another language other than original language, it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging.
 
@@ -74,7 +74,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > 1. **Docker**  
 > Pull the Docker image from `docker.io/basshous3/taggarr:latest`
 > 2. **Configs**  
-> Make sure to point `ROOT_TV_PATH` to your **CONTAINER** volume (not host). Check out [example of yaml configs](https://github.com/BassHous3/taggarr?tab=readme-ov-file#configuration-example)  below. 
+> Make sure to use `/tv` as path to your **CONTAINER** (not host). Check out [example of yaml configs](https://github.com/BassHous3/taggarr?tab=readme-ov-file#configuration-example)  below. 
 > 3. **Media players**  
 > After tags are applied, scan TV's library metadata using `Replace all metadata` method (leave `Replace Images` unchecked).
 
@@ -120,7 +120,7 @@ services:
       environment:
         - SONARR_API_KEY=your_api_key #REQUIRED
         - SONARR_URL=http://sonarr:8989 #REQUIRED
-        - ROOT_TV_PATH=/tv #REQUIRED - Point it to your container volume.
+        - #ROOT_TV_PATH=/tv #DEPRECATED
         - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
         - START_RUNNING=true #OPTIONAL        
         - QUICK_MODE=false #OPTIONAL 
@@ -132,7 +132,7 @@ services:
         - TAG_WRONG_DUB=wrong-dub #OPTIONAL 
         - LOG_LEVEL=INFO #OPTIONAL - DEBUG/INFO/WARNING/ERROR
       volumes:
-        - /path/to/your/TV:/tv 
+        - /path/to/your/TV:/tv # Make sure to point your media path host to "/tv" container path
         - .logs:/var/log/taggarr
       restart: unless-stopped
       logging:
@@ -148,7 +148,7 @@ services:
   
 ```json
 
-"/Media/TV/Example Show 1": {
+"/tv/Example Show 1": {
     "display_name": "Example Show 1",
     "tag": "wrong-dub",
     "last_scan": "2025-06-17T01:12:06.917224Z",
@@ -169,7 +169,7 @@ services:
     }
     }
 },
-"/Media/TV/Example Show 2": {
+"/tv/Example Show 2": {
     "display_name": "Example Show 2",
     "tag": "dub",
     "last_scan": "2025-06-17T01:11:53.725766Z",
