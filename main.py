@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.2.30"
+__version__ = "0.2.31" #root path & quick mode fix.
 
 import re
 import os
@@ -157,7 +157,7 @@ def determine_tag_and_stats(show_path, quick=False):
             season_stats[entry] = stats
 
     for season in sorted(season_stats.keys()):
-######
+
         seasons[season] = season_stats[season]
 
     if has_wrong_dub:
@@ -238,7 +238,7 @@ def main(opts=None):
     time.sleep(4)
     logger.debug(f"Initializing with options: {opts}...")
     time.sleep(3)
-    quick_mode = opts.quick
+    quick_mode = opts.quick or QUICK_MODE
     dry_run = opts.dry_run
     write_mode = opts.write_mode
 
@@ -251,7 +251,7 @@ def main(opts=None):
     if write_mode == 2:
         logger.info("Remove mode is enabled: Everything will be removed.")
 
-    logger.info("Starting taggarr scan...")
+    logger.info("Starting Taggarr scan...")
     time.sleep(3)
     taggarr = load_taggarr()
     logger.debug(f"Available paths in JSON: {list(taggarr['series'].keys())[:5]}")
