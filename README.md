@@ -41,6 +41,12 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
     <td align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat" alt="Not Ready" /></td>
     <td align="center"><img src="https://img.shields.io/badge/Status-Ready-green?style=flat" alt="Ready" /></td>
   </tr>
+    <tr>
+    <th colspan="3" align="center">Support for multiple volumes</th>
+  </tr>
+  <tr>
+    <th colspan="3" align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat" alt="Not Ready" /></td>
+  </tr>
 </table>
 
 </div>
