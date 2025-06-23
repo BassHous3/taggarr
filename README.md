@@ -19,7 +19,7 @@
 
 Started this project for the exact same questions. I felt other people could make use of it as well and here we are.
 
-Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in English or not. If Taggarr finds another language other than original language, it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging.
+Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in English or not. If Taggarr finds another language other than original language or English language, it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging system.
 
 This way, you can filter your shows based on if they're dubbed or not, using tags within your Sonarr (for managing) or any media player that supports tagging (for watching). Taggarr will also save all the information in a JSON file and will tell you which show, season and language is the wrong-dub.
 
@@ -108,7 +108,7 @@ Special thanks for inspiration goes to:
 <br>
 
 ## A CUP OF COFFEE SOUNDS NICE
-Did you find my work useful and it touched your heart ❤️? You can buy me a warm cup of coffee!
+Did you find my work useful and it touched your heart ❤️? You can show support by a warm cup of coffee!
 
 <a href="https://ko-fi.com/basshouse" target="_blank"><img src="https://cdn.prod.website-files.com/5c14e387dab576fe667689cf/670f5a0172b90570b1c21dab_kofi_logo.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 150px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
@@ -157,44 +157,55 @@ services:
 
 "/tv/Example Show 1": {
     "display_name": "Example Show 1",
-    "tag": "wrong-dub",
-    "last_scan": "2025-06-17T01:12:06.917224Z",
-    "seasons": {
-    "Season 1": {
-        "episodes": 1,
-        "dubbed": [],
-        "wrong_dub": ["E01"],
-        "unexpected_languages": ["fr"],
-        "status": "wrong-dub"
+      "tag": "wrong-dub",
+      "last_scan": "2025-06-23T01:52:10.120259Z",
+      "seasons": {
+        "Season 1": {
+          "episodes": 12,
+          "dubbed": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12"],
+          "wrong_dub": [],
+          "unexpected_languages": [
+            "fr"
+          ],
+          "last_modified": 1749531151.8699048,
+          "status": "dubbed"
+        },
+        "Season 2": {
+          "episodes": 12,
+          "dubbed": [],
+          "wrong_dub": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12"],
+          "unexpected_languages": [
+            "fr"
+          ],
+          "last_modified": 1749555919.9045405,
+          "status": "wrong-dub"
+        }
+      },
+      "last_modified": 1749531151.8699048
     },
-    "Season 2": {
-        "episodes": 1,
-        "dubbed": [],
-        "wrong_dub": ["E01"],
-        "unexpected_languages": ["fr"],
-        "status": "wrong-dub"
-    }
-    }
-},
 "/tv/Example Show 2": {
     "display_name": "Example Show 2",
-    "tag": "dub",
-    "last_scan": "2025-06-17T01:11:53.725766Z",
-    "seasons": {
-    "Season 1": {
-        "episodes": 1,
-        "dubbed": ["E01"],
-        "wrong_dub": [],
-        "unexpected_languages": [],
-        "status": "fully-dubbed"
-    },
-    "Season 2": {
-        "episodes": 1,
-        "dubbed": ["E01"],
-        "wrong_dub": [],
-        "unexpected_languages": [],
-        "status": "fully-dubbed"
-    }
+      "tag": "dub",
+      "last_scan": "2025-06-23T01:56:05.627898Z",
+      "seasons": {
+        "Season 1": {
+          "episodes": 12,
+          "dubbed": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12"],
+          "wrong_dub": [],
+          "unexpected_languages": [],
+          "last_modified": 1749520647.6570334,
+          "status": "fully-dubbed"
+        },
+        "Season 2": {
+          "episodes": 13,
+          "dubbed": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12", "E13"],
+          "wrong_dub": [],
+          "unexpected_languages": [],
+          "last_modified": 1749518612.1657739,
+          "status": "fully-dubbed"
+        }
+      },
+      "last_modified": 1749520647.6570334
 },
 
 ```
