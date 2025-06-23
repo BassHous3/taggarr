@@ -1,7 +1,7 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.3.0" 
-
+__version__ = "0.3.1" #improved sonarr tagging.
+import re
 import os
 import sys
 import time
@@ -325,13 +325,17 @@ def main(opts=None):
         tag, seasons = determine_tag_and_stats(show_path, quick=quick_mode)
         logger.info(f"✅ Tagged as {tag if tag else 'no tag (original)'}")
 
-        if tag:
+        if tag: #tag handling
             tag_sonarr(sid, tag, dry_run=dry_run)
             if tag == TAG_WRONG_DUB:
-                tag_sonarr(sid, TAG_DUB, remove=True, dry_run=dry_run)
                 tag_sonarr(sid, TAG_SEMI, remove=True, dry_run=dry_run)
-            elif tag == TAG_SEMI:
                 tag_sonarr(sid, TAG_DUB, remove=True, dry_run=dry_run)
+            elif tag == TAG_SEMI:
+                tag_sonarr(sid, TAG_WRONG_DUB, remove=True, dry_run=dry_run)
+                tag_sonarr(sid, TAG_DUB, remove=True, dry_run=dry_run)
+            elif tag == TAG_DUB:
+                tag_sonarr(sid, TAG_WRONG_DUB, remove=True, dry_run=dry_run)
+                tag_sonarr(sid, TAG_SEMI, remove=True, dry_run=dry_run)
 
         taggarr["series"][normalized_path] = {
             "display_name": show,
