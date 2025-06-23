@@ -1,6 +1,7 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.3.0" #scanning and logging improvements.
+__version__ = "0.3.0"
+
 import re
 import os
 import sys
@@ -86,10 +87,7 @@ def load_taggarr():
 
 def save_taggarr(data):
     try:
-        # Inject code version at save time
         data["version"] = __version__
-
-        # Ensure version appears first
         ordered_data = {"version": data["version"]}
         for k, v in data.items():
             if k != "version":
