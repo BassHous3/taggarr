@@ -1,7 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.2.31" #root path & quick mode fix.
-
+__version__ = "0.3.0" #scanning and logging improvements.
 import re
 import os
 import sys
@@ -32,14 +31,15 @@ TAG_DUB = os.getenv("TAG_DUB", "dub")
 TAG_SEMI = os.getenv("TAG_SEMI", "semi-dub")
 TAG_WRONG_DUB = os.getenv("TAG_WRONG", "wrong-dub")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+LOG_PATH = os.getenv("LOG_PATH", "/logs")
 LANGUAGE_CODES = ['eng', 'english', 'en', 'eng-us', 'en-us', 'eng-gb', 'en-gb']
 
 
 # === LOGGING ===
 def setup_logging():
-    log_dir = "taggarr"
+    log_dir =  LOG_PATH
     os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, "taggarr.log")
+    log_file = os.path.join(LOG_PATH, f"taggarr({__version__})_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
 
     logger = logging.getLogger()
     logger.setLevel(getattr(logging, LOG_LEVEL, logging.INFO))
@@ -50,9 +50,17 @@ def setup_logging():
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
     stream_handler.setFormatter(formatter)
-
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
+    logger.info(f"Taggarr - {__description__}")
+    time.sleep(1)
+    logger.info(f"Taggarr - v{__version__} started.")
+    time.sleep(3)
+    logger.debug(f"Log file created: {log_file}")
+    size_bytes = os.path.getsize(log_file)
+    size_mb = size_bytes / (1024 * 1024)
+    #logger.debug(f"Log file size: {size_mb:.2f} MB")
+
     return logger
 
 logger = setup_logging()
@@ -71,15 +79,23 @@ def load_taggarr():
             backup_path = TAGGARR_JSON_PATH + ".bak"
             os.rename(TAGGARR_JSON_PATH, backup_path)
             logger.warning(f"Corrupted file moved to: {backup_path}")
-            return {"version": 1.0, "series": {}}
-    logger.info("No taggarr.json found — starting fresh.")
-    return {"version": 1.0, "series": {}}
 
+    logger.info("No taggarr.json found — starting fresh.")
+    return {"series": {}}
 
 
 def save_taggarr(data):
     try:
-        raw_json = json.dumps(data, indent=2)
+        # Inject code version at save time
+        data["version"] = __version__
+
+        # Ensure version appears first
+        ordered_data = {"version": data["version"]}
+        for k, v in data.items():
+            if k != "version":
+                ordered_data[k] = v
+
+        raw_json = json.dumps(ordered_data, indent=2)
         compact_json = re.sub(
             r'(\[\s*\n\s*)((?:\s*"E\d{2}",?\s*\n?)+)(\s*\])',
             lambda m: '[{}]'.format(
@@ -139,6 +155,7 @@ def determine_tag_and_stats(show_path, quick=False):
         if os.path.isdir(season_path) and entry.lower().startswith("season"):
             logger.info(f"Scanning season: {entry}")
             stats = scan_season(season_path, quick=quick)
+            stats["last_modified"] = os.path.getmtime(season_path)
             dubbed_count = len(stats["dubbed"])
             wrong_dub_count = len(stats["wrong_dub"])
             total_episodes = stats["episodes"]
@@ -226,33 +243,33 @@ def run_loop(opts):
         time.sleep(RUN_INTERVAL_SECONDS)
 
 def main(opts=None):
+    logger.info("Starting Taggarr scan...")
+    time.sleep(5)
     if opts is None:
         parser = argparse.ArgumentParser()
         parser.add_argument('--write-mode', type=int, choices=[0, 1, 2], default=int(os.getenv("WRITE_MODE", 0)), help="0 = default, 1 = rewrite all, 2 = remove all")
         parser.add_argument('--quick', action='store_true')
         parser.add_argument('--dry-run', action='store_true')
         opts = parser.parse_args()
-    logger.info(f"Taggarr - {__description__}")
-    time.sleep(2)
-    logger.info(f"Taggarr v{__version__} started.")
-    time.sleep(4)
-    logger.debug(f"Initializing with options: {opts}...")
+    env_vars = {key: os.getenv(key) for key in ["START_RUNNING", "WRITE_MODE", "QUICK_MODE", "DRY_RUN", "TARGET_GENRE", "ROOT_TV_PATH"]}
+    logger.debug(f"Environment variables: {env_vars}...")
+    #logger.debug(f"Initializing with options: {opts}...")
     time.sleep(3)
     quick_mode = opts.quick or QUICK_MODE
-    dry_run = opts.dry_run
-    write_mode = opts.write_mode
+    dry_run = opts.dry_run or DRY_RUN
+    write_mode = opts.write_mode or WRITE_MODE
 
     if quick_mode:
         logger.info("Quick mode is enabled: Scanning only the first episode of each season.")
     if dry_run:
-        logger.info("Dry run mode is enabled: No Sonarr API calls will be made.")
+        logger.info("Dry run mode is enabled: No Sonarr API calls or .nfo file edits will be made.")
+    if write_mode == 0:
+        logger.info("Write mode is set to 0 or none. Processing shows as usual.")
     if write_mode == 1:
         logger.info("Rewrite mode is enabled: Everything will be rebuilt.")
     if write_mode == 2:
         logger.info("Remove mode is enabled: Everything will be removed.")
 
-    logger.info("Starting Taggarr scan...")
-    time.sleep(3)
     taggarr = load_taggarr()
     logger.debug(f"Available paths in JSON: {list(taggarr['series'].keys())[:5]}")
 
@@ -262,14 +279,22 @@ def main(opts=None):
         if not os.path.isdir(show_path):
             continue
         normalized_path = show_path
-        last_saved = taggarr["series"].get(normalized_path, {}).get("last_modified", 0)
-        current_mtime = os.path.getmtime(show_path)
+        saved_seasons = taggarr["series"].get(normalized_path, {}).get("seasons", {})
+        changed = False
 
-        logger.debug(f"{show}: current_mtime={current_mtime}, last_saved={last_saved}")
+        for d in os.listdir(show_path):
+            season_path = os.path.join(show_path, d)
+            if os.path.isdir(season_path) and d.lower().startswith("season"):
+                current_mtime = os.path.getmtime(season_path)
+                saved_mtime = saved_seasons.get(d, {}).get("last_modified", 0)
+                if current_mtime > saved_mtime:
+                    changed = True
+                    break
 
-        if write_mode == 0 and current_mtime <= last_saved:
-            logger.info(f"🚫 Skipping {show} - no changes since last scan")
+        if write_mode == 0 and not changed:
+            logger.info(f"🚫 Skipping {show} - no season folders changed since last scan")
             continue
+
 
         nfo_path = os.path.join(show_path, "tvshow.nfo")
         if not os.path.exists(nfo_path):
@@ -279,7 +304,7 @@ def main(opts=None):
         try:
             genres = [g.text.lower() for g in ET.parse(nfo_path).getroot().findall("genre")]
             if TARGET_GENRE and TARGET_GENRE.lower() not in genres:
-                logger.info(f"🚫 Skipping {show}: genre mismatch")
+                logger.info(f"🚫⛔ Skipping {show}: genre mismatch")
                 continue
         except Exception as e:
             logger.warning(f"Genre parsing failed for {show}: {e}")
@@ -338,7 +363,6 @@ if __name__ == '__main__':
     opts = parser.parse_args()
 
     if START_RUNNING:
-        logger.debug("START_RUNNING is true. Running initial scan...")
         run_loop(opts)
     elif any(vars(opts).values()):
         logger.debug("CLI args passed. Running one-time scan...")
