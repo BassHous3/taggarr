@@ -1,6 +1,7 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.3.1" #improved sonarr tagging.
+__version__ = "0.3.3" #improved json dumps for language codes.
+
 import re
 import os
 import sys
@@ -91,14 +92,25 @@ def save_taggarr(data):
         for k, v in data.items():
             if k != "version":
                 ordered_data[k] = v
+        raw_json = json.dumps(ordered_data, indent=2, ensure_ascii=False)
 
-        raw_json = json.dumps(ordered_data, indent=2)
+        # compact E## lists
         compact_json = re.sub(
             r'(\[\s*\n\s*)((?:\s*"E\d{2}",?\s*\n?)+)(\s*\])',
             lambda m: '[{}]'.format(
                 ', '.join(re.findall(r'"E\d{2}"', m.group(2)))
             ),
             raw_json
+        )
+
+        # compact unexpected_languages lists
+        compact_json = re.sub(
+            r'("unexpected_languages": )\[\s*\n\s*((?:\s*"[^"]+",?\s*\n?)+)(\s*\])',
+            lambda m: '{}[{}]'.format(
+                m.group(1),
+                ', '.join('"{}"'.format(x) for x in re.findall(r'"([^"]+)"', m.group(2)))
+            ),
+            compact_json
         )
         with open(TAGGARR_JSON_PATH, 'w') as f:
             f.write(compact_json)
@@ -135,9 +147,9 @@ def scan_season(season_path, quick=False):
         ep_name = match.group(1) if match else os.path.splitext(f)[0]
         if any(l in LANGUAGE_CODES for l in langs):
             stats["dubbed"].append(ep_name)
-        elif any(l not in ['ja', 'jpn'] for l in langs):
+        elif any(l not in ['ja', 'jp', 'jpn', 'ja-jp'] for l in langs):
             stats["wrong_dub"].append(ep_name)
-            stats["unexpected_languages"].extend([l for l in langs if l not in ['ja', 'jpn'] and l not in LANGUAGE_CODES])
+            stats["unexpected_languages"].extend([l for l in langs if l not in ['ja', 'jp', 'jpn', 'ja-jp'] and l not in LANGUAGE_CODES])
     stats["unexpected_languages"] = sorted(set(stats["unexpected_languages"]))
     return stats
 
@@ -323,7 +335,7 @@ def main(opts=None):
             continue
 
         tag, seasons = determine_tag_and_stats(show_path, quick=quick_mode)
-        logger.info(f"✅ Tagged as {tag if tag else 'no tag (original)'}")
+        logger.info(f"🏷️✅ Tagged as {tag if tag else 'no tag (original)'}")
 
         if tag: #tag handling
             tag_sonarr(sid, tag, dry_run=dry_run)
