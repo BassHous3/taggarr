@@ -1,8 +1,7 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.3.0"
+__version__ = "0.3.0" 
 
-import re
 import os
 import sys
 import time
@@ -53,9 +52,9 @@ def setup_logging():
     stream_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
-    logger.info(f"Taggarr - {__description__}")
+    logger.info(f"🏷️ Taggarr - {__description__}")
     time.sleep(1)
-    logger.info(f"Taggarr - v{__version__} started.")
+    logger.info(f"🏷️ Taggarr - v{__version__} started.")
     time.sleep(3)
     logger.debug(f"Log file created: {log_file}")
     size_bytes = os.path.getsize(log_file)
@@ -70,18 +69,18 @@ logger = setup_logging()
 def load_taggarr():
     if os.path.exists(TAGGARR_JSON_PATH):
         try:
-            logger.info(f"taggarr.json found at {TAGGARR_JSON_PATH}")
+            logger.info(f"📍 taggarr.json found at {TAGGARR_JSON_PATH}")
             with open(TAGGARR_JSON_PATH, 'r') as f:
                 data = json.load(f)
-                logger.debug(f"Loaded taggarr.json with {len(data.get('series', {}))} entries.")
+                logger.debug(f"✅ Loaded taggarr.json with {len(data.get('series', {}))} entries.")
                 return data
         except Exception as e:
-            logger.warning(f"taggarr.json is corrupted: {e}")
+            logger.warning(f"⚠️ taggarr.json is corrupted: {e}")
             backup_path = TAGGARR_JSON_PATH + ".bak"
             os.rename(TAGGARR_JSON_PATH, backup_path)
-            logger.warning(f"Corrupted file moved to: {backup_path}")
+            logger.warning(f"❌ Corrupted file moved to: {backup_path}")
 
-    logger.info("No taggarr.json found — starting fresh.")
+    logger.info("❌ No taggarr.json found — starting fresh.")
     return {"series": {}}
 
 
@@ -105,7 +104,7 @@ def save_taggarr(data):
             f.write(compact_json)
         logger.debug("✅ taggarr.json saved successfully.")
     except Exception as e:
-        logger.warning(f"Failed to save taggarr.json: {e}")
+        logger.warning(f"⚠️ Failed to save taggarr.json: {e}")
 
 # === MEDIA TOOLS ===
 def analyze_audio(video_path):
@@ -115,7 +114,7 @@ def analyze_audio(video_path):
         logger.debug(f"Analyzed {video_path}, found audio languages: {langs}")
         return langs
     except Exception as e:
-        logger.warning(f"Audio analysis failed for {video_path}: {e}")
+        logger.warning(f"⚠️ Audio analysis failed for {video_path}: {e}")
         return []
 
 def scan_season(season_path, quick=False):
