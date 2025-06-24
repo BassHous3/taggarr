@@ -36,6 +36,7 @@ LOG_PATH = os.getenv("LOG_PATH", "/logs")
 
 # Multi-language support
 TARGET_LANGUAGE = os.getenv("TARGET_LANGUAGE", "eng").lower()
+JAPANESE_EXCEPTION = os.getenv("JAPANESE_EXCEPTION", "true").lower() == "true"
 LANGUAGE_CODES_MAP = {
     'eng': ['eng', 'english', 'en', 'eng-us', 'en-us', 'eng-gb', 'en-gb'],
     'spa': ['spa', 'spanish', 'es', 'spa-es', 'es-es', 'spa-mx', 'es-mx'],
@@ -240,11 +241,21 @@ def scan_season(season_path, quick=False):
         langs = analyze_audio(full_path)
         match = re.search(r'(E\d{2})', f, re.IGNORECASE)
         ep_name = match.group(1) if match else os.path.splitext(f)[0]
+        
         if any(l in LANGUAGE_CODES for l in langs):
             stats["dubbed"].append(ep_name)
-        elif any(l not in ['ja', 'jp', 'jpn', 'ja-jp'] and l not in LANGUAGE_CODES for l in langs):
-            stats["wrong_dub"].append(ep_name)
-            stats["unexpected_languages"].extend([l for l in langs if l not in ['ja', 'jp', 'jpn', 'ja-jp'] and l not in LANGUAGE_CODES])
+        else:
+            # Check for wrong_dub based on JAPANESE_EXCEPTION flag
+            if JAPANESE_EXCEPTION:
+                # Original behavior: Japanese is excluded from wrong_dub
+                if any(l not in ['ja', 'jp', 'jpn', 'ja-jp'] for l in langs):
+                    stats["wrong_dub"].append(ep_name)
+                    stats["unexpected_languages"].extend([l for l in langs if l not in ['ja', 'jp', 'jpn', 'ja-jp'] and l not in LANGUAGE_CODES])
+            else:
+                # New behavior: Everything that's not target language is wrong_dub
+                if any(l not in LANGUAGE_CODES for l in langs):
+                    stats["wrong_dub"].append(ep_name)
+                    stats["unexpected_languages"].extend([l for l in langs if l not in LANGUAGE_CODES])
     stats["unexpected_languages"] = sorted(set(stats["unexpected_languages"]))
     return stats
 
@@ -376,6 +387,7 @@ def main(opts=None):
     
     logger.info(f"Target language set to: {TARGET_LANGUAGE.upper()} ({len(LANGUAGE_CODES)} language codes)")
     logger.debug(f"Language codes: {LANGUAGE_CODES}")
+    logger.info(f"Japanese exception: {'Enabled' if JAPANESE_EXCEPTION else 'Disabled'}")
 
     # --- ADDED: Check media directory before scanning ---
     logger.info(f"Checking media directory: {ROOT_TV_PATH}")

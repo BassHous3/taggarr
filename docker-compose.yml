@@ -7,6 +7,7 @@ services:
         - SONARR_API_KEY=your_api_key #REQUIRED
         - SONARR_URL=http://sonarr:8989 #REQUIRED
         - TARGET_LANGUAGE=eng #OPTIONAL - eng/spa/fra/deu/ita/por/rus/jpn/kor/cmn
+        - JAPANESE_EXCEPTION=true #OPTIONAL - true/false (default: true)
         - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
         - START_RUNNING=true        
         - QUICK_MODE=false

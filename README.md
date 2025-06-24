@@ -63,6 +63,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > - Once your library was scanned and indexed in the JSON file, it will only scan for new or modified folders.
 > - Supports recursive scanning - can now handle multiple media folders (TV, Anime, etc.) under one parent directory.
 > - `TARGET_LANGUAGE` `(Str)` Set your preferred dub language. Supports: English, Spanish, French, German, Italian, Portuguese, Russian, Japanese, Korean, Chinese.
+> - `JAPANESE_EXCEPTION` `(Bool)` When true (default), Japanese audio is treated as "original" and not tagged. When false, Japanese-only shows are tagged as "wrong-dub".
 > - `QUICK_MODE` `(Bool)` Checks only first video of every season.
 > - `TARGET_GENRE` `(Str)` Filter scan by genre. ie. `Anime`.
 > - `TAG_DUB` `(Str)` Custom tag for shows that have all target language audio tracks as `dub`.
@@ -128,6 +129,7 @@ services:
         - SONARR_API_KEY=your_api_key #REQUIRED
         - SONARR_URL=http://sonarr:8989 #REQUIRED
         - TARGET_LANGUAGE=eng #OPTIONAL - eng/spa/fra/deu/ita/por/rus/jpn/kor/cmn
+        - JAPANESE_EXCEPTION=true #OPTIONAL - true/false (default: true)
         - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
         - START_RUNNING=true #OPTIONAL        
         - QUICK_MODE=false #OPTIONAL 
