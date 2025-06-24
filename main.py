@@ -33,7 +33,23 @@ TAG_SEMI = os.getenv("TAG_SEMI", "semi-dub")
 TAG_WRONG_DUB = os.getenv("TAG_WRONG", "wrong-dub")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 LOG_PATH = os.getenv("LOG_PATH", "/logs")
-LANGUAGE_CODES = ['eng', 'english', 'en', 'eng-us', 'en-us', 'eng-gb', 'en-gb']
+
+# Multi-language support
+TARGET_LANGUAGE = os.getenv("TARGET_LANGUAGE", "eng").lower()
+JAPANESE_EXCEPTION = os.getenv("JAPANESE_EXCEPTION", "true").lower() == "true"
+LANGUAGE_CODES_MAP = {
+    'eng': ['eng', 'english', 'en', 'eng-us', 'en-us', 'eng-gb', 'en-gb'],
+    'spa': ['spa', 'spanish', 'es', 'spa-es', 'es-es', 'spa-mx', 'es-mx'],
+    'fra': ['fra', 'french', 'fr', 'fra-fr', 'fr-fr', 'fra-ca', 'fr-ca'],
+    'deu': ['deu', 'german', 'de', 'ger', 'deu-de', 'de-de'],
+    'ita': ['ita', 'italian', 'it', 'ita-it', 'it-it'],
+    'por': ['por', 'portuguese', 'pt', 'por-pt', 'pt-pt', 'por-br', 'pt-br'],
+    'rus': ['rus', 'russian', 'ru', 'rus-ru', 'ru-ru'],
+    'jpn': ['jpn', 'japanese', 'ja', 'jp', 'jpn-jp', 'ja-jp'],
+    'kor': ['kor', 'korean', 'ko', 'kr', 'kor-kr', 'ko-kr'],
+    'cmn': ['cmn', 'chinese', 'zh', 'chi', 'zho', 'zh-cn', 'zh-tw'],
+}
+LANGUAGE_CODES = LANGUAGE_CODES_MAP.get(TARGET_LANGUAGE, LANGUAGE_CODES_MAP['eng'])
 
 
 # === LOGGING ===
@@ -119,6 +135,86 @@ def save_taggarr(data):
         logger.warning(f"⚠️ Failed to save taggarr.json: {e}")
 
 # === MEDIA TOOLS ===
+def find_tv_shows(root_path):
+    """
+    Recursively find all TV show folders by looking for directories 
+    containing video files and season folders
+    """
+    logger.info(f"Starting TV show scan in: {root_path}")
+    
+    # Check if the root path exists
+    if not os.path.exists(root_path):
+        logger.error(f"Root path does not exist: {root_path}")
+        return []
+    
+    # List top-level directories
+    try:
+        top_dirs = os.listdir(root_path)
+        logger.info(f"Found {len(top_dirs)} top-level directories: {', '.join(top_dirs[:10])}")
+    except Exception as e:
+        logger.error(f"Error listing root path: {e}")
+        return []
+    
+    tv_shows = []
+    video_exts = ['.mkv', '.mp4', '.avi', '.webm', '.flv', '.mov', '.wmv', '.m4v', '.ts', '.m2ts', '.3gp', '.vob', '.ogv', '.rmvb', '.mxf', '.asf', '.divx', '.xvid']
+    
+    dirs_scanned = 0
+    shows_found = 0
+    last_log_time = time.time()
+    
+    logger.info("Scanning for TV shows (this may take a while for large libraries)...")
+    
+    for root, dirs, files in os.walk(root_path):
+        dirs_scanned += 1
+        
+        # Only log progress every 5 seconds to avoid spam
+        current_time = time.time()
+        if current_time - last_log_time >= 5:
+            logger.info(f"Progress: Scanned {dirs_scanned} directories, found {shows_found} shows so far...")
+            last_log_time = current_time
+        
+        # Skip certain directories to speed up scanning
+        if any(skip in root.lower() for skip in ['@eadir', '.trash', 'recycle', 'backup', 'temp', 'cache']):
+            dirs[:] = []  # Don't recurse into these directories
+            continue
+        
+        # Check if this directory has season folders
+        season_dirs = [d for d in dirs if d.lower().startswith('season')]
+        
+        if season_dirs:
+            # Only log at debug level to reduce spam
+            logger.debug(f"Found {len(season_dirs)} season folders in: {root}")
+            # Check if at least one season has videos
+            for season_dir in season_dirs:
+                season_path = os.path.join(root, season_dir)
+                try:
+                    season_files = os.listdir(season_path) if os.path.isdir(season_path) else []
+                    if any(f.lower().endswith(tuple(video_exts)) for f in season_files):
+                        logger.info(f"✅ Found TV show #{shows_found + 1}: {os.path.basename(root)}")
+                        tv_shows.append(root)
+                        shows_found += 1
+                        # Once we find one season with videos, no need to check others
+                        break
+                except (OSError, PermissionError) as e:
+                    logger.debug(f"Error accessing {season_path}: {e}")
+                    continue
+        
+        # Also check for flat structure (videos directly in show folder with NFO)
+        elif 'tvshow.nfo' in files and any(f.lower().endswith(tuple(video_exts)) for f in files):
+            logger.info(f"✅ Found TV show #{shows_found + 1} (with NFO): {os.path.basename(root)}")
+            tv_shows.append(root)
+            shows_found += 1
+    
+    logger.info(f"✅ TV show scan complete! Scanned {dirs_scanned} directories total")
+    logger.info(f"📺 Found {len(tv_shows)} TV shows")
+    
+    # Remove duplicates and return
+    unique_shows = list(set(tv_shows))
+    if len(unique_shows) < len(tv_shows):
+        logger.debug(f"Removed {len(tv_shows) - len(unique_shows)} duplicate entries")
+    
+    return sorted(unique_shows)
+
 def analyze_audio(video_path):
     try:
         media_info = MediaInfo.parse(video_path)
@@ -145,11 +241,21 @@ def scan_season(season_path, quick=False):
         langs = analyze_audio(full_path)
         match = re.search(r'(E\d{2})', f, re.IGNORECASE)
         ep_name = match.group(1) if match else os.path.splitext(f)[0]
+        
         if any(l in LANGUAGE_CODES for l in langs):
             stats["dubbed"].append(ep_name)
-        elif any(l not in ['ja', 'jp', 'jpn', 'ja-jp'] for l in langs):
-            stats["wrong_dub"].append(ep_name)
-            stats["unexpected_languages"].extend([l for l in langs if l not in ['ja', 'jp', 'jpn', 'ja-jp'] and l not in LANGUAGE_CODES])
+        else:
+            # Check for wrong_dub based on JAPANESE_EXCEPTION flag
+            if JAPANESE_EXCEPTION:
+                # Original behavior: Japanese is excluded from wrong_dub
+                if any(l not in ['ja', 'jp', 'jpn', 'ja-jp'] for l in langs):
+                    stats["wrong_dub"].append(ep_name)
+                    stats["unexpected_languages"].extend([l for l in langs if l not in ['ja', 'jp', 'jpn', 'ja-jp'] and l not in LANGUAGE_CODES])
+            else:
+                # New behavior: Everything that's not target language is wrong_dub
+                if any(l not in LANGUAGE_CODES for l in langs):
+                    stats["wrong_dub"].append(ep_name)
+                    stats["unexpected_languages"].extend([l for l in langs if l not in LANGUAGE_CODES])
     stats["unexpected_languages"] = sorted(set(stats["unexpected_languages"]))
     return stats
 
@@ -278,15 +384,45 @@ def main(opts=None):
         logger.info("Rewrite mode is enabled: Everything will be rebuilt.")
     if write_mode == 2:
         logger.info("Remove mode is enabled: Everything will be removed.")
+    
+    logger.info(f"Target language set to: {TARGET_LANGUAGE.upper()} ({len(LANGUAGE_CODES)} language codes)")
+    logger.debug(f"Language codes: {LANGUAGE_CODES}")
+    logger.info(f"Japanese exception: {'Enabled' if JAPANESE_EXCEPTION else 'Disabled'}")
+
+    # --- ADDED: Check media directory before scanning ---
+    logger.info(f"Checking media directory: {ROOT_TV_PATH}")
+    if not os.path.exists(ROOT_TV_PATH):
+        logger.error(f"ERROR: ROOT_TV_PATH does not exist: {ROOT_TV_PATH}")
+        return
+    try:
+        root_contents = os.listdir(ROOT_TV_PATH)
+        logger.info(f"Root directory contains {len(root_contents)} items: {', '.join(root_contents)}")
+    except Exception as e:
+        logger.error(f"ERROR: Cannot list ROOT_TV_PATH contents: {e}")
+        return
+    # --- END ADDED ---
 
     taggarr = load_taggarr()
     logger.debug(f"Available paths in JSON: {list(taggarr['series'].keys())[:5]}")
 
-    for show in sorted(os.listdir(ROOT_TV_PATH)):
-        show_path = os.path.join(ROOT_TV_PATH, show)
+    # Find all TV shows recursively
+    logger.info("🔍 Starting recursive TV show discovery...")
+    tv_shows = find_tv_shows(ROOT_TV_PATH)
+    
+    if not tv_shows:
+        logger.warning("⚠️ No TV shows found!")
+        logger.warning("Expected folder structure:")
+        logger.warning("  /tv/ShowName/Season 1/episode.mkv")
+        logger.warning("  OR")
+        logger.warning("  /tv/ShowName/tvshow.nfo + episodes.mkv")
+        logger.info("Make sure your shows have 'Season X' folders with video files inside.")
+        return
+    
+    logger.info(f"📺 Found {len(tv_shows)} TV shows to process")
+    
+    for show_path in sorted(tv_shows):
         show_path = os.path.abspath(show_path)
-        if not os.path.isdir(show_path):
-            continue
+        show = os.path.basename(show_path)
         normalized_path = show_path
         saved_seasons = taggarr["series"].get(normalized_path, {}).get("seasons", {})
         changed = False
@@ -311,7 +447,7 @@ def main(opts=None):
             continue
 
         try:
-            genres = [g.text.lower() for g in ET.parse(nfo_path).getroot().findall("genre")]
+            genres = [g.text.lower() for g in ET.parse(nfo_path).getroot().findall("genre") if g.text]
             if TARGET_GENRE and TARGET_GENRE.lower() not in genres:
                 logger.info(f"🚫⛔ Skipping {show}: genre mismatch")
                 continue
