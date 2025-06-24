@@ -19,7 +19,7 @@
 
 Started this project for the exact same questions. I felt other people could make use of it as well and here we are.
 
-Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in English or not. If Taggarr finds another language other than original language or English language, it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging system.
+Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in your target language or not. If Taggarr finds another language other than original language or your target language, it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging system.
 
 This way, you can filter your shows based on if they're dubbed or not, using tags within your Sonarr (for managing) or any media player that supports tagging (for watching). Taggarr will also save all the information in a JSON file and will tell you which show, season and language is the wrong-dub.
 
@@ -37,7 +37,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
     <th>Filter scanning by genre</th>
   </tr>
   <tr>
-    <td align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat" alt="Not Ready" /></td>
+    <td align="center"><img src="https://img.shields.io/badge/Status-Ready-green?style=flat" alt="Ready" /></td>
     <td align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat" alt="Not Ready" /></td>
     <td align="center"><img src="https://img.shields.io/badge/Status-Ready-green?style=flat" alt="Ready" /></td>
   </tr>
@@ -45,7 +45,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
     <th colspan="3" align="center">Support for multiple volumes</th>
   </tr>
   <tr>
-    <th colspan="3" align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat" alt="Not Ready" /></td>
+    <th colspan="3" align="center"><img src="https://img.shields.io/badge/Status-Ready-green?style=flat" alt="Ready" /></td>
   </tr>
 </table>
 
@@ -61,11 +61,13 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > - Taggarr will save the information of your media in a JSON file located at the root folder of your TV media.
 > - Taggarr does not scan the audio of your content. Instead, it reads the name of the audio tracks.
 > - Once your library was scanned and indexed in the JSON file, it will only scan for new or modified folders.
+> - Supports recursive scanning - can now handle multiple media folders (TV, Anime, etc.) under one parent directory.
+> - `TARGET_LANGUAGE` `(Str)` Set your preferred dub language. Supports: English, Spanish, French, German, Italian, Portuguese, Russian, Japanese, Korean, Chinese.
 > - `QUICK_MODE` `(Bool)` Checks only first video of every season.
 > - `TARGET_GENRE` `(Str)` Filter scan by genre. ie. `Anime`.
-> - `TAG_DUB` `(Str)` Custom tag for shows that have all English audio tracks as `dub`.
-> - `TAG_SEMI` `(Str)` Custom tag for shows that have some English audio tracks as `semi-dub`.
-> - `TAG_WRONG` `(Str)` Custom tag for shows that have non English audio track as `wrong-dub`.
+> - `TAG_DUB` `(Str)` Custom tag for shows that have all target language audio tracks as `dub`.
+> - `TAG_SEMI` `(Str)` Custom tag for shows that have some target language audio tracks as `semi-dub`.
+> - `TAG_WRONG` `(Str)` Custom tag for shows that have non-target language audio track as `wrong-dub`.
 > - `RUN_INTERVAL_SECONDS` `(Int)` Custom time interval. Default is every 2 hours.
 > - `DRT_RUN` `(Bool)` Not sure? Try it first, without writing any tags, JSON file will still be saved.
 > - `WRITE_MODE` `(Int)` Something not working or changed your mind? Don't worry I got you covered.
@@ -81,7 +83,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > 1. **Docker**  
 > Pull the Docker image from `docker.io/basshous3/taggarr:latest`
 > 2. **Configs**  
-> Make sure to use `/tv` as path to your **CONTAINER** (not host). Check out [example of yaml configs](https://github.com/BassHous3/taggarr?tab=readme-ov-file#configuration-example)  below. 
+> Make sure to use `/tv` as path to your **CONTAINER** (not host). Can now point to parent folder containing multiple media directories. Check out [example of yaml configs](https://github.com/BassHous3/taggarr?tab=readme-ov-file#configuration-example)  below. 
 > 3. **Media players**  
 > After tags are applied, scan TV's library metadata using `Replace all metadata` method (leave `Replace Images` unchecked).
 
@@ -89,9 +91,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 
 ## IMPORTANT & DISCLAIMER
 
-> [!WARNING]
-> - Currently supporting only English audio as the "correct" dub. Support for other languages will come in the upcoming updates.
->    
+> [!WARNING]    
 > - Currently supporting only Sonarr. Support for Radarr will come in the upcoming updates as well.
 > - This project is still in very early stages and can have bugs. Currently only tested on Linux.
 > - Coding is only a hobby of mine and I am still learning, use this program at your own discretion.
@@ -127,7 +127,7 @@ services:
       environment:
         - SONARR_API_KEY=your_api_key #REQUIRED
         - SONARR_URL=http://sonarr:8989 #REQUIRED
-        - #ROOT_TV_PATH=/tv #DEPRECATED
+        - TARGET_LANGUAGE=eng #OPTIONAL - eng/spa/fra/deu/ita/por/rus/jpn/kor/cmn
         - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
         - START_RUNNING=true #OPTIONAL        
         - QUICK_MODE=false #OPTIONAL 
@@ -139,7 +139,7 @@ services:
         - TAG_WRONG_DUB=wrong-dub #OPTIONAL 
         - LOG_LEVEL=INFO #OPTIONAL - DEBUG/INFO/WARNING/ERROR
       volumes:
-        - /path/to/your/TV:/tv # Make sure to point your media path host to "/tv" container path
+        - /path/to/your/media:/tv # Can now point to parent folder containing TV/Anime/etc subdirectories
         - /var/log/taggarr:/logs # OPTIONAL - recommended path for logs
       restart: unless-stopped
       logging:

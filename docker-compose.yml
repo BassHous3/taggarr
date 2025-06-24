@@ -6,6 +6,7 @@ services:
       environment:
         - SONARR_API_KEY=your_api_key #REQUIRED
         - SONARR_URL=http://sonarr:8989 #REQUIRED
+        - TARGET_LANGUAGE=eng #OPTIONAL - eng/spa/fra/deu/ita/por/rus/jpn/kor/cmn
         - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
         - START_RUNNING=true        
         - QUICK_MODE=false
@@ -17,7 +18,7 @@ services:
         - TAG_WRONG_DUB=wrong-dub
         - LOG_LEVEL=INFO #OPTIONAL - DEBUG/INFO/WARNING/ERROR
       volumes:
-        - /path/to/your/TV:/tv # Make sure to point your media path host to "/tv" container path
+        - /path/to/your/media:/tv # Can now point to parent folder containing TV/Anime/etc subdirectories
         - /var/log/taggarr:/logs # OPTIONAL - recommended path for logs
       restart: unless-stopped
       logging:

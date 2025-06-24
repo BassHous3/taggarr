@@ -33,7 +33,22 @@ TAG_SEMI = os.getenv("TAG_SEMI", "semi-dub")
 TAG_WRONG_DUB = os.getenv("TAG_WRONG", "wrong-dub")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 LOG_PATH = os.getenv("LOG_PATH", "/logs")
-LANGUAGE_CODES = ['eng', 'english', 'en', 'eng-us', 'en-us', 'eng-gb', 'en-gb']
+
+# Multi-language support
+TARGET_LANGUAGE = os.getenv("TARGET_LANGUAGE", "eng").lower()
+LANGUAGE_CODES_MAP = {
+    'eng': ['eng', 'english', 'en', 'eng-us', 'en-us', 'eng-gb', 'en-gb'],
+    'spa': ['spa', 'spanish', 'es', 'spa-es', 'es-es', 'spa-mx', 'es-mx'],
+    'fra': ['fra', 'french', 'fr', 'fra-fr', 'fr-fr', 'fra-ca', 'fr-ca'],
+    'deu': ['deu', 'german', 'de', 'ger', 'deu-de', 'de-de'],
+    'ita': ['ita', 'italian', 'it', 'ita-it', 'it-it'],
+    'por': ['por', 'portuguese', 'pt', 'por-pt', 'pt-pt', 'por-br', 'pt-br'],
+    'rus': ['rus', 'russian', 'ru', 'rus-ru', 'ru-ru'],
+    'jpn': ['jpn', 'japanese', 'ja', 'jp', 'jpn-jp', 'ja-jp'],
+    'kor': ['kor', 'korean', 'ko', 'kr', 'kor-kr', 'ko-kr'],
+    'cmn': ['cmn', 'chinese', 'zh', 'chi', 'zho', 'zh-cn', 'zh-tw'],
+}
+LANGUAGE_CODES = LANGUAGE_CODES_MAP.get(TARGET_LANGUAGE, LANGUAGE_CODES_MAP['eng'])
 
 
 # === LOGGING ===
@@ -119,6 +134,40 @@ def save_taggarr(data):
         logger.warning(f"⚠️ Failed to save taggarr.json: {e}")
 
 # === MEDIA TOOLS ===
+def find_tv_shows(root_path):
+    """
+    Recursively find all TV show folders by looking for directories 
+    containing video files and season folders
+    """
+    tv_shows = []
+    video_exts = ['.mkv', '.mp4', '.avi', '.webm', '.flv', '.mov', '.wmv', '.m4v', '.ts', '.m2ts', '.3gp', '.vob', '.ogv', '.rmvb', '.mxf', '.asf', '.divx', '.xvid']
+    
+    for root, dirs, files in os.walk(root_path):
+        # Check if this directory has season folders
+        has_seasons = any(d.lower().startswith('season') for d in dirs)
+        
+        # If it has season folders, it's likely a TV show root
+        if has_seasons:
+            # Check if at least one season has videos
+            for d in dirs:
+                if d.lower().startswith('season'):
+                    season_path = os.path.join(root, d)
+                    try:
+                        season_files = os.listdir(season_path) if os.path.isdir(season_path) else []
+                        if any(f.lower().endswith(tuple(video_exts)) for f in season_files):
+                            tv_shows.append(root)
+                            break
+                    except (OSError, PermissionError):
+                        continue
+        
+        # Also check for flat structure (videos directly in show folder with NFO)
+        elif any(f.lower().endswith(tuple(video_exts)) for f in files):
+            nfo_path = os.path.join(root, "tvshow.nfo")
+            if os.path.exists(nfo_path):
+                tv_shows.append(root)
+    
+    return list(set(tv_shows))  # Remove duplicates
+
 def analyze_audio(video_path):
     try:
         media_info = MediaInfo.parse(video_path)
@@ -147,7 +196,7 @@ def scan_season(season_path, quick=False):
         ep_name = match.group(1) if match else os.path.splitext(f)[0]
         if any(l in LANGUAGE_CODES for l in langs):
             stats["dubbed"].append(ep_name)
-        elif any(l not in ['ja', 'jp', 'jpn', 'ja-jp'] for l in langs):
+        elif any(l not in ['ja', 'jp', 'jpn', 'ja-jp'] and l not in LANGUAGE_CODES for l in langs):
             stats["wrong_dub"].append(ep_name)
             stats["unexpected_languages"].extend([l for l in langs if l not in ['ja', 'jp', 'jpn', 'ja-jp'] and l not in LANGUAGE_CODES])
     stats["unexpected_languages"] = sorted(set(stats["unexpected_languages"]))
@@ -278,15 +327,20 @@ def main(opts=None):
         logger.info("Rewrite mode is enabled: Everything will be rebuilt.")
     if write_mode == 2:
         logger.info("Remove mode is enabled: Everything will be removed.")
+    
+    logger.info(f"Target language set to: {TARGET_LANGUAGE.upper()} ({len(LANGUAGE_CODES)} language codes)")
+    logger.debug(f"Language codes: {LANGUAGE_CODES}")
 
     taggarr = load_taggarr()
     logger.debug(f"Available paths in JSON: {list(taggarr['series'].keys())[:5]}")
 
-    for show in sorted(os.listdir(ROOT_TV_PATH)):
-        show_path = os.path.join(ROOT_TV_PATH, show)
+    # Find all TV shows recursively
+    tv_shows = find_tv_shows(ROOT_TV_PATH)
+    logger.info(f"Found {len(tv_shows)} TV shows in {ROOT_TV_PATH}")
+    
+    for show_path in sorted(tv_shows):
         show_path = os.path.abspath(show_path)
-        if not os.path.isdir(show_path):
-            continue
+        show = os.path.basename(show_path)
         normalized_path = show_path
         saved_seasons = taggarr["series"].get(normalized_path, {}).get("seasons", {})
         changed = False
@@ -311,7 +365,7 @@ def main(opts=None):
             continue
 
         try:
-            genres = [g.text.lower() for g in ET.parse(nfo_path).getroot().findall("genre")]
+            genres = [g.text.lower() for g in ET.parse(nfo_path).getroot().findall("genre") if g.text]
             if TARGET_GENRE and TARGET_GENRE.lower() not in genres:
                 logger.info(f"🚫⛔ Skipping {show}: genre mismatch")
                 continue
