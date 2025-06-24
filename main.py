@@ -139,34 +139,78 @@ def find_tv_shows(root_path):
     Recursively find all TV show folders by looking for directories 
     containing video files and season folders
     """
+    logger.info(f"Starting TV show scan in: {root_path}")
+    
+    # Check if the root path exists
+    if not os.path.exists(root_path):
+        logger.error(f"Root path does not exist: {root_path}")
+        return []
+    
+    # List top-level directories
+    try:
+        top_dirs = os.listdir(root_path)
+        logger.info(f"Found {len(top_dirs)} top-level directories: {', '.join(top_dirs[:10])}")
+    except Exception as e:
+        logger.error(f"Error listing root path: {e}")
+        return []
+    
     tv_shows = []
     video_exts = ['.mkv', '.mp4', '.avi', '.webm', '.flv', '.mov', '.wmv', '.m4v', '.ts', '.m2ts', '.3gp', '.vob', '.ogv', '.rmvb', '.mxf', '.asf', '.divx', '.xvid']
     
+    dirs_scanned = 0
+    shows_found = 0
+    
+    logger.info("Scanning for TV shows (this may take a while for large libraries)...")
+    
     for root, dirs, files in os.walk(root_path):
-        # Check if this directory has season folders
-        has_seasons = any(d.lower().startswith('season') for d in dirs)
+        dirs_scanned += 1
         
-        # If it has season folders, it's likely a TV show root
-        if has_seasons:
+        # Log progress every 10 directories initially, then every 100
+        if dirs_scanned <= 50 and dirs_scanned % 10 == 0:
+            logger.debug(f"Progress: Scanned {dirs_scanned} directories, found {shows_found} shows so far...")
+        elif dirs_scanned % 100 == 0:
+            logger.info(f"Progress: Scanned {dirs_scanned} directories, found {shows_found} shows so far...")
+        
+        # Skip certain directories to speed up scanning
+        if any(skip in root.lower() for skip in ['@eadir', '.trash', 'recycle', 'backup', 'temp', 'cache']):
+            dirs[:] = []  # Don't recurse into these directories
+            continue
+        
+        # Check if this directory has season folders
+        season_dirs = [d for d in dirs if d.lower().startswith('season')]
+        
+        if season_dirs:
+            logger.debug(f"Found {len(season_dirs)} season folders in: {root}")
             # Check if at least one season has videos
-            for d in dirs:
-                if d.lower().startswith('season'):
-                    season_path = os.path.join(root, d)
-                    try:
-                        season_files = os.listdir(season_path) if os.path.isdir(season_path) else []
-                        if any(f.lower().endswith(tuple(video_exts)) for f in season_files):
-                            tv_shows.append(root)
-                            break
-                    except (OSError, PermissionError):
-                        continue
+            for season_dir in season_dirs:
+                season_path = os.path.join(root, season_dir)
+                try:
+                    season_files = os.listdir(season_path) if os.path.isdir(season_path) else []
+                    if any(f.lower().endswith(tuple(video_exts)) for f in season_files):
+                        logger.info(f"✅ Found TV show #{shows_found + 1}: {root}")
+                        tv_shows.append(root)
+                        shows_found += 1
+                        # Once we find one season with videos, no need to check others
+                        break
+                except (OSError, PermissionError) as e:
+                    logger.debug(f"Error accessing {season_path}: {e}")
+                    continue
         
         # Also check for flat structure (videos directly in show folder with NFO)
-        elif any(f.lower().endswith(tuple(video_exts)) for f in files):
-            nfo_path = os.path.join(root, "tvshow.nfo")
-            if os.path.exists(nfo_path):
-                tv_shows.append(root)
+        elif 'tvshow.nfo' in files and any(f.lower().endswith(tuple(video_exts)) for f in files):
+            logger.info(f"✅ Found TV show #{shows_found + 1} (with NFO): {root}")
+            tv_shows.append(root)
+            shows_found += 1
     
-    return list(set(tv_shows))  # Remove duplicates
+    logger.info(f"✅ TV show scan complete! Scanned {dirs_scanned} directories total")
+    logger.info(f"📺 Found {len(tv_shows)} TV shows")
+    
+    # Remove duplicates and return
+    unique_shows = list(set(tv_shows))
+    if len(unique_shows) < len(tv_shows):
+        logger.debug(f"Removed {len(tv_shows) - len(unique_shows)} duplicate entries")
+    
+    return sorted(unique_shows)
 
 def analyze_audio(video_path):
     try:
@@ -331,12 +375,36 @@ def main(opts=None):
     logger.info(f"Target language set to: {TARGET_LANGUAGE.upper()} ({len(LANGUAGE_CODES)} language codes)")
     logger.debug(f"Language codes: {LANGUAGE_CODES}")
 
+    # --- ADDED: Check media directory before scanning ---
+    logger.info(f"Checking media directory: {ROOT_TV_PATH}")
+    if not os.path.exists(ROOT_TV_PATH):
+        logger.error(f"ERROR: ROOT_TV_PATH does not exist: {ROOT_TV_PATH}")
+        return
+    try:
+        root_contents = os.listdir(ROOT_TV_PATH)
+        logger.info(f"Root directory contains {len(root_contents)} items: {', '.join(root_contents)}")
+    except Exception as e:
+        logger.error(f"ERROR: Cannot list ROOT_TV_PATH contents: {e}")
+        return
+    # --- END ADDED ---
+
     taggarr = load_taggarr()
     logger.debug(f"Available paths in JSON: {list(taggarr['series'].keys())[:5]}")
 
     # Find all TV shows recursively
+    logger.info("🔍 Starting recursive TV show discovery...")
     tv_shows = find_tv_shows(ROOT_TV_PATH)
-    logger.info(f"Found {len(tv_shows)} TV shows in {ROOT_TV_PATH}")
+    
+    if not tv_shows:
+        logger.warning("⚠️ No TV shows found!")
+        logger.warning("Expected folder structure:")
+        logger.warning("  /tv/ShowName/Season 1/episode.mkv")
+        logger.warning("  OR")
+        logger.warning("  /tv/ShowName/tvshow.nfo + episodes.mkv")
+        logger.info("Make sure your shows have 'Season X' folders with video files inside.")
+        return
+    
+    logger.info(f"📺 Found {len(tv_shows)} TV shows to process")
     
     for show_path in sorted(tv_shows):
         show_path = os.path.abspath(show_path)
