@@ -159,17 +159,18 @@ def find_tv_shows(root_path):
     
     dirs_scanned = 0
     shows_found = 0
+    last_log_time = time.time()
     
     logger.info("Scanning for TV shows (this may take a while for large libraries)...")
     
     for root, dirs, files in os.walk(root_path):
         dirs_scanned += 1
         
-        # Log progress every 10 directories initially, then every 100
-        if dirs_scanned <= 50 and dirs_scanned % 10 == 0:
-            logger.debug(f"Progress: Scanned {dirs_scanned} directories, found {shows_found} shows so far...")
-        elif dirs_scanned % 100 == 0:
+        # Only log progress every 5 seconds to avoid spam
+        current_time = time.time()
+        if current_time - last_log_time >= 5:
             logger.info(f"Progress: Scanned {dirs_scanned} directories, found {shows_found} shows so far...")
+            last_log_time = current_time
         
         # Skip certain directories to speed up scanning
         if any(skip in root.lower() for skip in ['@eadir', '.trash', 'recycle', 'backup', 'temp', 'cache']):
@@ -180,6 +181,7 @@ def find_tv_shows(root_path):
         season_dirs = [d for d in dirs if d.lower().startswith('season')]
         
         if season_dirs:
+            # Only log at debug level to reduce spam
             logger.debug(f"Found {len(season_dirs)} season folders in: {root}")
             # Check if at least one season has videos
             for season_dir in season_dirs:
@@ -187,7 +189,7 @@ def find_tv_shows(root_path):
                 try:
                     season_files = os.listdir(season_path) if os.path.isdir(season_path) else []
                     if any(f.lower().endswith(tuple(video_exts)) for f in season_files):
-                        logger.info(f"✅ Found TV show #{shows_found + 1}: {root}")
+                        logger.info(f"✅ Found TV show #{shows_found + 1}: {os.path.basename(root)}")
                         tv_shows.append(root)
                         shows_found += 1
                         # Once we find one season with videos, no need to check others
@@ -198,7 +200,7 @@ def find_tv_shows(root_path):
         
         # Also check for flat structure (videos directly in show folder with NFO)
         elif 'tvshow.nfo' in files and any(f.lower().endswith(tuple(video_exts)) for f in files):
-            logger.info(f"✅ Found TV show #{shows_found + 1} (with NFO): {root}")
+            logger.info(f"✅ Found TV show #{shows_found + 1} (with NFO): {os.path.basename(root)}")
             tv_shows.append(root)
             shows_found += 1
     
