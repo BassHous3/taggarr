@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.3.3" #improved json dumps for language codes.
+__version__ = "0.3.4" 
 
 import re
 import os
@@ -171,6 +171,7 @@ def determine_tag_and_stats(show_path, quick=False):
 
             if dubbed_count == total_episodes and wrong_dub_count == 0:
                 stats["status"] = "fully-dubbed"
+                has_dub = True
             elif wrong_dub_count > 0:
                 stats["status"] = "wrong-dub"
                 has_wrong_dub = True
@@ -348,6 +349,10 @@ def main(opts=None):
             elif tag == TAG_DUB:
                 tag_sonarr(sid, TAG_WRONG_DUB, remove=True, dry_run=dry_run)
                 tag_sonarr(sid, TAG_SEMI, remove=True, dry_run=dry_run)
+            else:
+                logger.info(f"Removing all tags from {show} since it's original (no tag)")
+                for t in [TAG_DUB, TAG_SEMI, TAG_WRONG_DUB]:
+                    tag_sonarr(sid, t, remove=True, dry_run=dry_run)
 
         taggarr["series"][normalized_path] = {
             "display_name": show,
