@@ -19,7 +19,7 @@
 
 Started this project for the exact same questions. I felt other people could make use of it as well and here we are.
 
-Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in English or not. If Taggarr finds another language other than original language or English language, it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging system.
+Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in English or not. If Taggarr finds another language other than Japanese language or English language, it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging system.
 
 This way, you can filter your shows based on if they're dubbed or not, using tags within your Sonarr (for managing) or any media player that supports tagging (for watching). Taggarr will also save all the information in a JSON file and will tell you which show, season and language is the wrong-dub.
 
@@ -90,7 +90,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 ## IMPORTANT & DISCLAIMER
 
 > [!WARNING]
-> - Currently supporting only English audio as the "correct" dub. Support for other languages will come in the upcoming updates.
+> - Currently supporting only English audio as the "correct" dub and Japanese as Original Language. Support for other languages will come in the upcoming updates.
 >    
 > - Currently supporting only Sonarr. Support for Radarr will come in the upcoming updates as well.
 > - This project is still in very early stages and can have bugs. Currently only tested on Linux.
