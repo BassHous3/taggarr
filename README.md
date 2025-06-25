@@ -19,9 +19,11 @@
 
 Started this project for the exact same questions. I felt other people could make use of it as well and here we are.
 
-Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in English or not. If Taggarr finds another language other than original language or English language, it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging system.
+Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in English or not, currently ideal for Anime lovers. If Taggarr finds another language other than Japanese language or English language, it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging system.
 
-This way, you can filter your shows based on if they're dubbed or not, using tags within your Sonarr (for managing) or any media player that supports tagging (for watching). Taggarr will also save all the information in a JSON file and will tell you which show, season and language is the wrong-dub.
+This way, you can filter your shows based on if they're dubbed or not, using tags within your Sonarr (for managing) or any media player that supports tagging (for watching). Taggarr will also save all the information in a JSON file and will tell you which show, season, episode and language is the wrong-dub.
+<br><br></br>
+[![Discord](https://img.shields.io/discord/1387237436765241344?color=738ad6&label=Discord&logo=discord&logoColor=7289DA)](https://discord.com/invite/Z6t83MWt) Need a hand? Have any ideas? Or perhaps feeling some dev vibes? You can now join the Discord server!
 
 <br>
 
@@ -67,7 +69,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > - `TAG_SEMI` `(Str)` Custom tag for shows that have some English audio tracks as `semi-dub`.
 > - `TAG_WRONG` `(Str)` Custom tag for shows that have non English audio track as `wrong-dub`.
 > - `RUN_INTERVAL_SECONDS` `(Int)` Custom time interval. Default is every 2 hours.
-> - `DRT_RUN` `(Bool)` Not sure? Try it first, without writing any tags, JSON file will still be saved.
+> - `DRY_RUN` `(Bool)` Not sure? Try it first, without writing any tags, JSON file will still be saved.
 > - `WRITE_MODE` `(Int)` Something not working or changed your mind? Don't worry I got you covered.
 > - `WRITE_MODE=0` Works like usual.
 > - `WRITE_MODE=1` Rewrites everything, all tags and JSON file.
@@ -90,7 +92,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 ## IMPORTANT & DISCLAIMER
 
 > [!WARNING]
-> - Currently supporting only English audio as the "correct" dub. Support for other languages will come in the upcoming updates.
+> - Currently supporting only English audio as the "correct" dub and Japanese as Original Language. Support for other languages will come in the upcoming updates.
 >    
 > - Currently supporting only Sonarr. Support for Radarr will come in the upcoming updates as well.
 > - This project is still in very early stages and can have bugs. Currently only tested on Linux.
@@ -127,7 +129,7 @@ services:
       environment:
         - SONARR_API_KEY=your_api_key #REQUIRED
         - SONARR_URL=http://sonarr:8989 #REQUIRED
-        - #ROOT_TV_PATH=/tv #DEPRECATED
+#       - ROOT_TV_PATH=/tv #DEPRECATED
         - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
         - START_RUNNING=true #OPTIONAL        
         - QUICK_MODE=false #OPTIONAL 
