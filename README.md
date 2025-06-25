@@ -67,7 +67,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > - `TAG_SEMI` `(Str)` Custom tag for shows that have some English audio tracks as `semi-dub`.
 > - `TAG_WRONG` `(Str)` Custom tag for shows that have non English audio track as `wrong-dub`.
 > - `RUN_INTERVAL_SECONDS` `(Int)` Custom time interval. Default is every 2 hours.
-> - `DRT_RUN` `(Bool)` Not sure? Try it first, without writing any tags, JSON file will still be saved.
+> - `DRY_RUN` `(Bool)` Not sure? Try it first, without writing any tags, JSON file will still be saved.
 > - `WRITE_MODE` `(Int)` Something not working or changed your mind? Don't worry I got you covered.
 > - `WRITE_MODE=0` Works like usual.
 > - `WRITE_MODE=1` Rewrites everything, all tags and JSON file.
@@ -127,7 +127,7 @@ services:
       environment:
         - SONARR_API_KEY=your_api_key #REQUIRED
         - SONARR_URL=http://sonarr:8989 #REQUIRED
-        - #ROOT_TV_PATH=/tv #DEPRECATED
+#       - ROOT_TV_PATH=/tv #DEPRECATED
         - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
         - START_RUNNING=true #OPTIONAL        
         - QUICK_MODE=false #OPTIONAL 
