@@ -23,7 +23,7 @@ Taggarr is a tool for scanning and tagging your media content whether if your me
 
 This way, you can filter your shows based on if they're dubbed or not, using tags within your Sonarr (for managing) or any media player that supports tagging (for watching). Taggarr will also save all the information in a JSON file and will tell you which show, season, episode and language is the wrong-dub.
 <br><br></br>
-[![Discord](https://img.shields.io/discord/1387237436765241344?color=738ad6&label=Discord&logo=discord&logoColor=7289DA)](https://discord.com/invite/Z6t83MWt) Need a hand? Have any ideas? Or perhaps feeling some dev vibes? You can now join the Discord server!
+[![Discord](https://img.shields.io/discord/1387237436765241344?color=738ad6&label=Discord&logo=discord&logoColor=7289DA)](https://discord.com/invite/uggq7JQk89) Need a hand? Have any ideas? Or perhaps feeling some dev vibes? You can now join the Discord server!
 
 <br>
 
