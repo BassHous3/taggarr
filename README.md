@@ -130,17 +130,17 @@ services:
       environment:
         - SONARR_API_KEY=your_api_key #REQUIRED
         - SONARR_URL=http://sonarr:8989 #REQUIRED
-#       - ROOT_TV_PATH=/tv #DEPRECATED
         - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
         - START_RUNNING=true #OPTIONAL        
         - QUICK_MODE=false #OPTIONAL 
         - DRY_RUN=false #OPTIONAL 
         - WRITE_MODE=0 #OPTIONAL - 0=NONE, 1=REWRITE, 2=REMOVE
-        - TARGET_GENRE=Anime #OPTIONAL - default is all genres
-        - TAG_DUB=dub #OPTIONAL 
-        - TAG_SEMI=semi-dub #OPTIONAL 
-        - TAG_WRONG_DUB=wrong-dub #OPTIONAL 
+        - TAG_DUB=dub #OPTIONAL
+        - TAG_SEMI=semi-dub #OPTIONAL
+        - TAG_WRONG_DUB=wrong-dub #OPTIONAL
         - LOG_LEVEL=INFO #OPTIONAL - DEBUG/INFO/WARNING/ERROR
+        - TARGET_GENRE=Anime #OPTIONAL - default is all genres
+        - TARGET_LANGUAGES=english, french # Supports multiple languages, comma-separated en, fr, de, etc. are also acceptable entries
       volumes:
         - /path/to/your/TV:/tv # Make sure to point your media path host to "/tv" container path
         - /var/log/taggarr:/logs # OPTIONAL - recommended path for logs
@@ -160,55 +160,57 @@ services:
 
 "/tv/Example Show 1": {
     "display_name": "Example Show 1",
-      "tag": "wrong-dub",
-      "last_scan": "2025-06-23T01:52:10.120259Z",
+      "tag": "semi-dub",
+      "last_scan": "2025-06-26T19:22:11.769510Z",
+      "original_language": "japanese",
       "seasons": {
         "Season 1": {
-          "episodes": 12,
-          "dubbed": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12"],
-          "wrong_dub": [],
-          "unexpected_languages": [
-            "fr"
-          ],
-          "last_modified": 1749531151.8699048,
-          "status": "dubbed"
+          "episodes": 1,
+          "original_dub": ["E01"],
+          "dub": ["E01:en"],
+          "missing_dub": ["E01:fr"],
+          "unexpected_languages": [],
+          "last_modified": 1749519136.4969385,
+          "status": "semi-dub"
         },
         "Season 2": {
-          "episodes": 12,
-          "dubbed": [],
-          "wrong_dub": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12"],
-          "unexpected_languages": [
-            "fr"
-          ],
-          "last_modified": 1749555919.9045405,
-          "status": "wrong-dub"
+          "episodes": 1,
+          "original_dub": ["E01"],
+          "dub": ["E01:en"],
+          "missing_dub": ["E01:fr"],
+          "unexpected_languages": [],
+          "last_modified": 1749518483.8193643,
+          "status": "semi-dub"
+        },
+        "Season 3": {
+          "episodes": 1,
+          "original_dub": ["E01"],
+          "dub": [],
+          "missing_dub": ["E01:en, fr"],
+          "unexpected_languages": [],
+          "last_modified": 1750725575.362786,
+          "status": "original"
         }
       },
-      "last_modified": 1749531151.8699048
+      "last_modified": 1749519136.4969385
     },
 "/tv/Example Show 2": {
     "display_name": "Example Show 2",
-      "tag": "dub",
-      "last_scan": "2025-06-23T01:56:05.627898Z",
+      "tag": "dub-en,fr",
+      "last_scan": "2025-06-26T19:23:55.967659Z",
+      "original_language": "french",
       "seasons": {
         "Season 1": {
-          "episodes": 12,
-          "dubbed": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12"],
-          "wrong_dub": [],
+          "episodes": 1,
+          "original_dub": ["E01"],
+          "dub": ["E01:en, fr"],
+          "missing_dub": [],
           "unexpected_languages": [],
-          "last_modified": 1749520647.6570334,
-          "status": "fully-dubbed"
-        },
-        "Season 2": {
-          "episodes": 13,
-          "dubbed": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12", "E13"],
-          "wrong_dub": [],
-          "unexpected_languages": [],
-          "last_modified": 1749518612.1657739,
-          "status": "fully-dubbed"
+          "last_modified": 1749517909.2880175,
+          "status": "fully-dub"
         }
       },
-      "last_modified": 1749520647.6570334
+      "last_modified": 1749517909.2880175
 },
 
 ```
