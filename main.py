@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.3.4" 
+__version__ = "0.3.5" 
 
 import re
 import os
@@ -301,8 +301,16 @@ def main(opts=None):
                     changed = True
                     break
 
-        if write_mode == 0 and not changed:
-            logger.info(f"🚫 Skipping {show} - no season folders changed since last scan")
+        # NEW: detect new show
+        is_new_show = normalized_path not in taggarr["series"]
+
+        # NEW: detect new season folder
+        existing_seasons = set(saved_seasons.keys())
+        current_seasons = set(d for d in os.listdir(show_path) if os.path.isdir(os.path.join(show_path, d)) and d.lower().startswith("season"))
+        new_season_detected = len(current_seasons - existing_seasons) > 0
+
+        if write_mode == 0 and not (changed or is_new_show or new_season_detected):
+            logger.info(f"🚫 Skipping {show} - no new or updated seasons")
             continue
 
 
