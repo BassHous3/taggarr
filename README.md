@@ -74,11 +74,11 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > - Taggarr does not scan the audio of your content. Instead, it reads the name of the audio tracks.
 > - Once your library was scanned and indexed in the JSON file, it will only scan for new or modified folders.
 > - `QUICK_MODE` `(Bool)` Checks only first video of every season.
-> - `TARGET_LANGUAGES` `(Str)` Seperated via comma, you can add multiple languages.
+> - `TARGET_LANGUAGES` `(Str)` Seperated via comma, you can add multiple languages as your target.
 > - `TARGET_GENRE` `(Str)` Filter scan by genre. ie. `Anime`.
-> - `TAG_DUB` `(Str)` Custom tag for shows that have all English audio tracks as `dub`.
-> - `TAG_SEMI` `(Str)` Custom tag for shows that have some English audio tracks as `semi-dub`.
-> - `TAG_WRONG` `(Str)` Custom tag for shows that have non English audio track as `wrong-dub`.
+> - `TAG_DUB` `(Str)` Optional custom tag.
+> - `TAG_SEMI` `(Str)` Optional custom tag.
+> - `TAG_WRONG` `(Str)` Optional custom tag.
 > - `RUN_INTERVAL_SECONDS` `(Int)` Custom time interval. Default is every 2 hours.
 > - `DRY_RUN` `(Bool)` Not sure? Try it first, without writing any tags, JSON file will still be saved.
 > - `WRITE_MODE` `(Int)` Something not working or changed your mind? Don't worry I got you covered.
