@@ -39,7 +39,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
     <th>Filter scanning by genre</th>
   </tr>
   <tr>
-    <td align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat" alt="Not Ready" /></td>
+    <td align="center"><img src="https://img.shields.io/badge/Status-Ready-green?style=flat" alt="Not Ready" /></td>
     <td align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat" alt="Not Ready" /></td>
     <td align="center"><img src="https://img.shields.io/badge/Status-Ready-green?style=flat" alt="Ready" /></td>
   </tr>
