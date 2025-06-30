@@ -9,13 +9,14 @@ services:
         - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
         - START_RUNNING=true        
         - QUICK_MODE=false
-        - DRY_RUN=false
+        - DRY_RUN=false #OPTIONAL - recommended for first time to avoid writing tags. Double check with JSON output before turning it off.
         - WRITE_MODE=0 #OPTIONAL - 0=NONE, 1=REWRITE, 2=REMOVE
-        - TARGET_GENRE=Anime #OPTIONAL - default is all genres
         - TAG_DUB=dub
         - TAG_SEMI=semi-dub
         - TAG_WRONG_DUB=wrong-dub
         - LOG_LEVEL=INFO #OPTIONAL - DEBUG/INFO/WARNING/ERROR
+        - TARGET_GENRE=Anime #OPTIONAL - default is all genres
+        - TARGET_LANGUAGES=english, french # Supports multiple languages, comma-separated en, fr, de, etc. are also acceptable entries
       volumes:
         - /path/to/your/TV:/tv # Make sure to point your media path host to "/tv" container path
         - /var/log/taggarr:/logs # OPTIONAL - recommended path for logs

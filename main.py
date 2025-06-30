@@ -1,6 +1,7 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.3.5" 
+__version__ = "0.4.13"
+
 
 import re
 import os
@@ -8,6 +9,7 @@ import sys
 import time
 import json
 import argparse
+import pycountry
 import requests
 from datetime import datetime
 from pymediainfo import MediaInfo
@@ -27,13 +29,13 @@ START_RUNNING = os.getenv("START_RUNNING", "true").lower() == "true"
 QUICK_MODE = os.getenv("QUICK_MODE", "false").lower() == "true"
 DRY_RUN = os.getenv("DRY_RUN", "false").lower() == "true"
 WRITE_MODE = int(os.getenv("WRITE_MODE", 0))
-TARGET_GENRE = os.getenv("TARGET_GENRE")
 TAG_DUB = os.getenv("TAG_DUB", "dub")
 TAG_SEMI = os.getenv("TAG_SEMI", "semi-dub")
 TAG_WRONG_DUB = os.getenv("TAG_WRONG", "wrong-dub")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 LOG_PATH = os.getenv("LOG_PATH", "/logs")
-LANGUAGE_CODES = ['eng', 'english', 'en', 'eng-us', 'en-us', 'eng-gb', 'en-gb']
+TARGET_GENRE = os.getenv("TARGET_GENRE")
+TARGET_LANGUAGES = [lang.strip().lower() for lang in os.getenv("TARGET_LANGUAGES", "en").split(",")]
 
 
 # === LOGGING ===
@@ -103,15 +105,16 @@ def save_taggarr(data):
             raw_json
         )
 
-        # compact unexpected_languages lists
+        # compact dub/missing_dub/original_dub lists
         compact_json = re.sub(
-            r'("unexpected_languages": )\[\s*\n\s*((?:\s*"[^"]+",?\s*\n?)+)(\s*\])',
+            r'("original_dub": |\s*"dub": |\s*"missing_dub": |\s*"unexpected_languages": )\[\s*\n\s*((?:\s*"[^"]+",?\s*\n?)+)(\s*\])',
             lambda m: '{}[{}]'.format(
                 m.group(1),
-                ', '.join('"{}"'.format(x) for x in re.findall(r'"([^"]+)"', m.group(2)))
+                ', '.join(f'"{x}"' for x in re.findall(r'"([^"]+)"', m.group(2)))
             ),
             compact_json
         )
+
         with open(TAGGARR_JSON_PATH, 'w') as f:
             f.write(compact_json)
         logger.debug("✅ taggarr.json saved successfully.")
@@ -122,38 +125,101 @@ def save_taggarr(data):
 def analyze_audio(video_path):
     try:
         media_info = MediaInfo.parse(video_path)
-        langs = list(set(t.language.lower() for t in media_info.tracks if t.track_type == "Audio" and t.language))
-        logger.debug(f"Analyzed {video_path}, found audio languages: {langs}")
-        return langs
+        langs = set()
+        fallback_detected = False
+
+        for t in media_info.tracks:
+            if t.track_type == "Audio":
+                lang = (t.language or "").strip().lower()
+                title = (t.title or "").strip().lower()
+
+                if lang:
+                    langs.add(lang)
+                elif "track 1" in title or "audio 1" in title or title == "":
+                    langs.add("__fallback_original__")
+                    fallback_detected = True
+
+        logger.debug(f"Analyzed {video_path}, found audio languages: {sorted(langs)}")
+        if fallback_detected:
+            logger.debug(f"Fallback language detection used in {video_path}")
+        return list(langs)
     except Exception as e:
         logger.warning(f"⚠️ Audio analysis failed for {video_path}: {e}")
         return []
 
-def scan_season(season_path, quick=False):
-    video_exts = ['.mkv', '.mp4', '.avi']
+
+def scan_season(season_path, show, quick=False):
+    video_exts = ['.mkv', '.mp4', '.m4v', '.avi', '.webm', '.mov', '.mxf']
     files = sorted([f for f in os.listdir(season_path) if os.path.splitext(f)[1].lower() in video_exts])
     if quick and files:
         files = [files[0]]
+
+    original_lang = show.get("originalLanguage", "")
+    if isinstance(original_lang, dict):
+        original_lang_name = original_lang.get("name", "").lower()
+    else:
+        original_lang_name = str(original_lang).lower()
+
+    ORIGINAL_LANGUAGE_CODES = get_language_aliases(original_lang_name)
+    ACCEPTED_LANGUAGES = LANGUAGE_CODES.union(ORIGINAL_LANGUAGE_CODES)
+
     stats = {
         "episodes": len(files) if not quick else 1,
-        "dubbed": [],
-        "wrong_dub": [],
+        "original_dub": [],
+        "dub": [],
+        "missing_dub": [],
         "unexpected_languages": [],
     }
+
     for f in files:
         full_path = os.path.join(season_path, f)
         langs = analyze_audio(full_path)
+
         match = re.search(r'(E\d{2})', f, re.IGNORECASE)
         ep_name = match.group(1) if match else os.path.splitext(f)[0]
-        if any(l in LANGUAGE_CODES for l in langs):
-            stats["dubbed"].append(ep_name)
-        elif any(l not in ['ja', 'jp', 'jpn', 'ja-jp'] for l in langs):
-            stats["wrong_dub"].append(ep_name)
-            stats["unexpected_languages"].extend([l for l in langs if l not in ['ja', 'jp', 'jpn', 'ja-jp'] and l not in LANGUAGE_CODES])
+
+        # Handle fallback audio track assumption
+        if "__fallback_original__" in langs:
+            stats["original_dub"].append(ep_name)
+            logger.info(f"⚠️🔊 Audio track not labelled for {ep_name} — using fallback: assuming audio is original language.")
+            continue  # skip further analysis for this episode
+
+        langs_set = set(langs)
+        has_target = langs_set.intersection(LANGUAGE_CODES)
+
+        # Build language aliases for the current file's audio tracks
+        langs_aliases = set()
+        for l in langs:
+            langs_aliases.update(get_language_aliases(l))
+
+        missing_target = set()
+        for t in TARGET_LANGUAGES:
+            t_aliases = get_language_aliases(t)
+            if not langs_aliases.intersection(t_aliases):
+                missing_target.add(t)
+
+        has_original = langs_set.intersection(ORIGINAL_LANGUAGE_CODES)
+
+        if has_original:
+            stats["original_dub"].append(ep_name)
+        if has_target:
+            stats["dub"].append(f"{ep_name}:{', '.join(sorted(has_target))}")
+        if missing_target:
+            short_missing = [get_primary_iso_code(m) for m in sorted(missing_target)]
+            stats["missing_dub"].append(f"{ep_name}:{', '.join(short_missing)}")
+
+        # collect unexpected langs
+        for l in langs:
+            if l not in LANGUAGE_CODES and l not in ORIGINAL_LANGUAGE_CODES:
+                stats["unexpected_languages"].append(l)
+
     stats["unexpected_languages"] = sorted(set(stats["unexpected_languages"]))
     return stats
 
-def determine_tag_and_stats(show_path, quick=False):
+
+
+
+def determine_tag_and_stats(show_path, show, quick=False): #tag method handling is very delicate
     seasons = {}
     has_wrong_dub = False
     has_dub = False
@@ -163,37 +229,83 @@ def determine_tag_and_stats(show_path, quick=False):
         season_path = os.path.join(show_path, entry)
         if os.path.isdir(season_path) and entry.lower().startswith("season"):
             logger.info(f"Scanning season: {entry}")
-            stats = scan_season(season_path, quick=quick)
+            stats = scan_season(season_path, show, quick=quick)
             stats["last_modified"] = os.path.getmtime(season_path)
-            dubbed_count = len(stats["dubbed"])
-            wrong_dub_count = len(stats["wrong_dub"])
-            total_episodes = stats["episodes"]
 
-            if dubbed_count == total_episodes and wrong_dub_count == 0:
-                stats["status"] = "fully-dubbed"
-                has_dub = True
-            elif wrong_dub_count > 0:
+            has_any_dub = bool(stats["dub"])
+            has_any_wrong = bool(stats["unexpected_languages"])
+            has_dub = has_dub or has_any_dub
+            has_wrong_dub = has_wrong_dub or has_any_wrong
+
+            if has_any_wrong:
                 stats["status"] = "wrong-dub"
-                has_wrong_dub = True
-            elif dubbed_count > 0:
-                stats["status"] = "semi-dub"
-                has_dub = True
+            elif not stats["missing_dub"] and stats["dub"]:
+                stats["status"] = "fully-dub"
             else:
-                stats["status"] = "original"
+                stats["status"] = "semi-dub" if stats["dub"] else "original"
 
             season_stats[entry] = stats
 
     for season in sorted(season_stats.keys()):
-
         seasons[season] = season_stats[season]
-
     if has_wrong_dub:
         return TAG_WRONG_DUB, seasons
-    elif all(seasons[s]["status"] == "fully-dubbed" for s in seasons):
-        return TAG_DUB, seasons
-    elif has_dub:
+    elif all(s["status"] == "fully-dub" for s in seasons.values()):
+        if len(TARGET_LANGUAGES) == 1:
+            return TAG_DUB, seasons
+        else:
+            return TAG_DUB, seasons
+    elif any(s["status"] == "semi-dub" for s in seasons.values()):
         return TAG_SEMI, seasons
-    return None, seasons
+
+    return None, seasons 
+
+
+# === LANGUAGE HANDLING ===
+
+def get_language_aliases(code_or_name):
+    aliases = set()
+    if not code_or_name:
+        return aliases
+    code_or_name = code_or_name.lower()
+
+    try:
+        lang = (
+            pycountry.languages.get(alpha_2=code_or_name)
+            or pycountry.languages.get(alpha_3=code_or_name)
+            or pycountry.languages.lookup(code_or_name)
+        )
+    except Exception:
+        lang = None
+
+    if lang:
+        if hasattr(lang, 'alpha_2'):
+            aliases.add(lang.alpha_2.lower())
+        if hasattr(lang, 'alpha_3'):
+            aliases.add(lang.alpha_3.lower())
+        aliases.add(lang.name.lower())
+
+    for suffix in ['-us', '-gb', '-ca', '-au', '-fr', '-de', '-jp', '-kr', '-cn', '-tw', '-ru']:
+        aliases.update(a + suffix for a in list(aliases))
+
+    return aliases
+
+            # Flatten all aliases from target languages
+LANGUAGE_CODES = set()
+for lang in TARGET_LANGUAGES:
+    LANGUAGE_CODES.update(get_language_aliases(lang))
+
+            # shorten user entries to avoid long massive tags
+def get_primary_iso_code(lang):
+    try:
+        result = (
+            pycountry.languages.get(name=lang)
+            or pycountry.languages.lookup(lang)
+        )
+        return result.alpha_2.lower()
+    except Exception:
+        return lang.lower()[:2]  # fallback to first 2 letters
+
 
 # === SONARR ===
 def get_sonarr_id(path):
@@ -246,6 +358,17 @@ def refresh_sonarr_series(series_id, dry_run=False):
     except Exception as e:
         logger.warning(f"Failed to trigger Sonarr refresh for {series_id}: {e}")
 
+def get_sonarr_series(path):
+    try:
+        resp = requests.get(f"{SONARR_URL}/api/v3/series", headers={"X-Api-Key": SONARR_API_KEY})
+        for s in resp.json():
+            if os.path.basename(s['path']) == os.path.basename(path):
+                return s
+    except Exception as e:
+        logger.warning(f"Failed to fetch Sonarr series metadata: {e}")
+    return None
+
+
 # === MAIN FUNCTION ===
 def run_loop(opts):
     while True:
@@ -261,7 +384,7 @@ def main(opts=None):
         parser.add_argument('--quick', action='store_true')
         parser.add_argument('--dry-run', action='store_true')
         opts = parser.parse_args()
-    env_vars = {key: os.getenv(key) for key in ["START_RUNNING", "WRITE_MODE", "QUICK_MODE", "DRY_RUN", "TARGET_GENRE", "ROOT_TV_PATH"]}
+    env_vars = {key: os.getenv(key) for key in ["WRITE_MODE", "QUICK_MODE", "DRY_RUN", "TARGET_GENRE", "ROOT_TV_PATH", "TARGET_LANGUAGES", "START_RUNNING"]}
     logger.debug(f"Environment variables: {env_vars}...")
     #logger.debug(f"Initializing with options: {opts}...")
     time.sleep(3)
@@ -289,6 +412,7 @@ def main(opts=None):
         if not os.path.isdir(show_path):
             continue
         normalized_path = show_path
+        show_meta = taggarr["series"].get(os.path.abspath(show_path), {})
         saved_seasons = taggarr["series"].get(normalized_path, {}).get("seasons", {})
         changed = False
 
@@ -343,7 +467,19 @@ def main(opts=None):
                 del taggarr["series"][show_path]
             continue
 
-        tag, seasons = determine_tag_and_stats(show_path, quick=quick_mode)
+        series_data = get_sonarr_series(show_path)
+        if not series_data:
+            logger.warning(f"No Sonarr metadata found for {show}")
+            continue
+
+        tag, seasons = determine_tag_and_stats(show_path, series_data, quick=quick_mode)
+
+        original_lang_raw = series_data.get("originalLanguage", "")
+        if isinstance(original_lang_raw, dict):
+            original_lang = original_lang_raw.get("name", "").lower()
+        else:
+            original_lang = str(original_lang_raw).lower()
+
         logger.info(f"🏷️✅ Tagged as {tag if tag else 'no tag (original)'}")
 
         if tag: #tag handling
@@ -366,6 +502,7 @@ def main(opts=None):
             "display_name": show,
             "tag": tag or "none",
             "last_scan": datetime.utcnow().isoformat() + "Z",
+            "original_language": original_lang,
             "seasons": seasons,
             "last_modified": current_mtime
         }

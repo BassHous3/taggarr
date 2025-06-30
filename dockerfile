@@ -28,6 +28,8 @@ ENV TAG_DUB="dub"
 ENV TAG_SEMI="semi-dub"
 ENV TAG_WRONG_DUB="wrong-dub"
 ENV LOG_LEVEL="INFO"
+ENV TARGET_LANGUAGES="english"
+
 # Entrypoint
 CMD ["python", "main.py"]
 

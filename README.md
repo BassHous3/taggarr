@@ -19,7 +19,7 @@
 
 Started this project for the exact same questions. I felt other people could make use of it as well and here we are.
 
-Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in English or not, currently ideal for Anime lovers. If Taggarr finds another language other than Japanese language or English language, it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging system.
+Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in your language you desire or not. If Taggarr finds another language other than Original Language or your Target Languages, it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging system.
 
 This way, you can filter your shows based on if they're dubbed or not, using tags within your Sonarr (for managing) or any media player that supports tagging (for watching). Taggarr will also save all the information in a JSON file and will tell you which show, season, episode and language is the wrong-dub.
 <br><br></br>
@@ -64,6 +64,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > - Taggarr does not scan the audio of your content. Instead, it reads the name of the audio tracks.
 > - Once your library was scanned and indexed in the JSON file, it will only scan for new or modified folders.
 > - `QUICK_MODE` `(Bool)` Checks only first video of every season.
+> - `TARGET_LANGUAGES` `(Str)` Seperated via comma, you can add multiple languages.
 > - `TARGET_GENRE` `(Str)` Filter scan by genre. ie. `Anime`.
 > - `TAG_DUB` `(Str)` Custom tag for shows that have all English audio tracks as `dub`.
 > - `TAG_SEMI` `(Str)` Custom tag for shows that have some English audio tracks as `semi-dub`.
@@ -129,17 +130,17 @@ services:
       environment:
         - SONARR_API_KEY=your_api_key #REQUIRED
         - SONARR_URL=http://sonarr:8989 #REQUIRED
-#       - ROOT_TV_PATH=/tv #DEPRECATED
         - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
         - START_RUNNING=true #OPTIONAL        
         - QUICK_MODE=false #OPTIONAL 
         - DRY_RUN=false #OPTIONAL 
         - WRITE_MODE=0 #OPTIONAL - 0=NONE, 1=REWRITE, 2=REMOVE
-        - TARGET_GENRE=Anime #OPTIONAL - default is all genres
-        - TAG_DUB=dub #OPTIONAL 
-        - TAG_SEMI=semi-dub #OPTIONAL 
-        - TAG_WRONG_DUB=wrong-dub #OPTIONAL 
+        - TAG_DUB=dub #OPTIONAL
+        - TAG_SEMI=semi-dub #OPTIONAL
+        - TAG_WRONG_DUB=wrong-dub #OPTIONAL
         - LOG_LEVEL=INFO #OPTIONAL - DEBUG/INFO/WARNING/ERROR
+        - TARGET_GENRE=Anime #OPTIONAL - default is all genres
+        - TARGET_LANGUAGES=english, french # Supports multiple languages, comma-separated en, fr, de, etc. are also acceptable entries
       volumes:
         - /path/to/your/TV:/tv # Make sure to point your media path host to "/tv" container path
         - /var/log/taggarr:/logs # OPTIONAL - recommended path for logs
@@ -159,55 +160,57 @@ services:
 
 "/tv/Example Show 1": {
     "display_name": "Example Show 1",
-      "tag": "wrong-dub",
-      "last_scan": "2025-06-23T01:52:10.120259Z",
+      "tag": "semi-dub",
+      "last_scan": "2025-06-26T19:22:11.769510Z",
+      "original_language": "japanese",
       "seasons": {
         "Season 1": {
-          "episodes": 12,
-          "dubbed": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12"],
-          "wrong_dub": [],
-          "unexpected_languages": [
-            "fr"
-          ],
-          "last_modified": 1749531151.8699048,
-          "status": "dubbed"
+          "episodes": 1,
+          "original_dub": ["E01"],
+          "dub": ["E01:en"],
+          "missing_dub": ["E01:fr"],
+          "unexpected_languages": [],
+          "last_modified": 1749519136.4969385,
+          "status": "semi-dub"
         },
         "Season 2": {
-          "episodes": 12,
-          "dubbed": [],
-          "wrong_dub": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12"],
-          "unexpected_languages": [
-            "fr"
-          ],
-          "last_modified": 1749555919.9045405,
-          "status": "wrong-dub"
+          "episodes": 1,
+          "original_dub": ["E01"],
+          "dub": ["E01:en"],
+          "missing_dub": ["E01:fr"],
+          "unexpected_languages": [],
+          "last_modified": 1749518483.8193643,
+          "status": "semi-dub"
+        },
+        "Season 3": {
+          "episodes": 1,
+          "original_dub": ["E01"],
+          "dub": [],
+          "missing_dub": ["E01:en, fr"],
+          "unexpected_languages": [],
+          "last_modified": 1750725575.362786,
+          "status": "original"
         }
       },
-      "last_modified": 1749531151.8699048
+      "last_modified": 1749519136.4969385
     },
 "/tv/Example Show 2": {
     "display_name": "Example Show 2",
-      "tag": "dub",
-      "last_scan": "2025-06-23T01:56:05.627898Z",
+      "tag": "dub-en,fr",
+      "last_scan": "2025-06-26T19:23:55.967659Z",
+      "original_language": "french",
       "seasons": {
         "Season 1": {
-          "episodes": 12,
-          "dubbed": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12"],
-          "wrong_dub": [],
+          "episodes": 1,
+          "original_dub": ["E01"],
+          "dub": ["E01:en, fr"],
+          "missing_dub": [],
           "unexpected_languages": [],
-          "last_modified": 1749520647.6570334,
-          "status": "fully-dubbed"
-        },
-        "Season 2": {
-          "episodes": 13,
-          "dubbed": ["E01", "E02", "E03", "E04", "E05", "E06", "E07", "E08", "E09", "E10", "E11", "E12", "E13"],
-          "wrong_dub": [],
-          "unexpected_languages": [],
-          "last_modified": 1749518612.1657739,
-          "status": "fully-dubbed"
+          "last_modified": 1749517909.2880175,
+          "status": "fully-dub"
         }
       },
-      "last_modified": 1749520647.6570334
+      "last_modified": 1749517909.2880175
 },
 
 ```
