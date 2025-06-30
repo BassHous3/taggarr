@@ -22,7 +22,17 @@ Started this project for the exact same questions. I felt other people could mak
 Taggarr is a tool for scanning and tagging your media content whether if your media is dubbed in your language you desire or not. If Taggarr finds another language other than Original Language or your Target Languages, it will mark it as "wrong-dub" using Sonarr and Kodi standard tagging system.
 
 This way, you can filter your shows based on if they're dubbed or not, using tags within your Sonarr (for managing) or any media player that supports tagging (for watching). Taggarr will also save all the information in a JSON file and will tell you which show, season, episode and language is the wrong-dub.
-<br><br></br>
+<br></br>
+> [!NOTE]
+> **How it Works:**
+> 
+> - `NO TAG` The show is only in its original language.
+> - `DUB` The show contains ALL of your target languages.
+> - `SEMI-DUB` The show missing at least one of your target languages.
+> - `WRONG-DUB` The show contains another language and is missing your target languages (excluding original language).
+
+
+<br></br>
 [![Discord](https://img.shields.io/discord/1387237436765241344?color=738ad6&label=Discord&logo=discord&logoColor=7289DA)](https://discord.com/invite/uggq7JQk89) Need a hand? Have any ideas? Or perhaps feeling some dev vibes? You can now join the Discord server!
 
 <br>
