@@ -28,8 +28,8 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > 
 > - `NO TAG` The show is only in its original language.
 > - `DUB` The show contains ALL of your target languages.
-> - `SEMI-DUB` The show missing at least one of your target languages.
-> - `WRONG-DUB` The show contains another language and is missing your target languages (excluding original language).
+> - `SEMI-DUB` The show missing at least one of your target languages or some episodes are missing the dub.
+> - `WRONG-DUB` The show is missing your target languages and contains another language (excluding original language).
 
 
 <br></br>
