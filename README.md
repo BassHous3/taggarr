@@ -164,7 +164,7 @@ services:
   ```
 
 <details>
-<summary><span style="font-size: 10em;"><strong>JSON FILE EXPORT EXAMPLE</strong></span></summary>
+<summary><span style="font-size: 10em;"><strong>JSON FILE WITH TARGET LANGUAGES ENGLISH AND FRENCH</strong></span></summary>
   
 ```json
 
