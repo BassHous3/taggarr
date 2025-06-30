@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.4.11" #new language support version
+__version__ = "0.4.13"
 
 import re
 import os
@@ -122,23 +122,29 @@ def save_taggarr(data):
 
 # === MEDIA TOOLS ===
 def analyze_audio(video_path):
-    langs = set()
-    fallback_detected = False
+    try:
+        media_info = MediaInfo.parse(video_path)
+        langs = set()
+        fallback_detected = False
 
-    media_info = MediaInfo.parse(video_path)
+        for t in media_info.tracks:
+            if t.track_type == "Audio":
+                lang = (t.language or "").strip().lower()
+                title = (t.title or "").strip().lower()
 
-    for t in media_info.tracks:
-        if t.track_type == "Audio":
-            lang = (t.language or "").strip().lower()
-            title = (t.title or "").strip().lower()
+                if lang:
+                    langs.add(lang)
+                elif "track 1" in title or "audio 1" in title or title == "":
+                    langs.add("__fallback_original__")
+                    fallback_detected = True
 
-            if lang:
-                langs.add(lang)
-            elif "track 1" in title or "audio 1" in title or title == "":
-                langs.add("__fallback_original__")
-                fallback_detected = True
-
-    return langs
+        logger.debug(f"Analyzed {video_path}, found audio languages: {sorted(langs)}")
+        if fallback_detected:
+            logger.debug(f"Fallback language detection used in {video_path}")
+        return list(langs)
+    except Exception as e:
+        logger.warning(f"⚠️ Audio analysis failed for {video_path}: {e}")
+        return []
 
 
 def scan_season(season_path, show, quick=False):
@@ -247,8 +253,7 @@ def determine_tag_and_stats(show_path, show, quick=False): #tag method handling 
         if len(TARGET_LANGUAGES) == 1:
             return TAG_DUB, seasons
         else:
-            short_langs = sorted({get_primary_iso_code(lang) for lang in TARGET_LANGUAGES})
-            return f"dub-{','.join(short_langs)}", seasons
+            return TAG_DUB, seasons
     elif any(s["status"] == "semi-dub" for s in seasons.values()):
         return TAG_SEMI, seasons
 
@@ -419,8 +424,16 @@ def main(opts=None):
                     changed = True
                     break
 
-        if write_mode == 0 and not changed:
-            logger.info(f"🚫 Skipping {show} - no season folders changed since last scan")
+        # NEW: detect new show
+        is_new_show = normalized_path not in taggarr["series"]
+
+        # NEW: detect new season folder
+        existing_seasons = set(saved_seasons.keys())
+        current_seasons = set(d for d in os.listdir(show_path) if os.path.isdir(os.path.join(show_path, d)) and d.lower().startswith("season"))
+        new_season_detected = len(current_seasons - existing_seasons) > 0
+
+        if write_mode == 0 and not (changed or is_new_show or new_season_detected):
+            logger.info(f"🚫 Skipping {show} - no new or updated seasons")
             continue
 
 
