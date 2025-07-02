@@ -57,7 +57,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
     <th colspan="3" align="center">Support for multiple volumes</th>
   </tr>
   <tr>
-    <th colspan="3" align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat" alt="Not Ready" /></td>
+    <th colspan="3" align="center"><img src="https://img.shields.io/badge/Status-Ready-green?style=flat" alt="Not Ready" /></td>
   </tr>
 </table>
 
@@ -94,7 +94,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > 1. **Docker**  
 > Pull the Docker image from `docker.io/basshous3/taggarr:latest`
 > 2. **Configs**  
-> Make sure to use `/tv` as path to your **CONTAINER** (not host). Check out [example of yaml configs](https://github.com/BassHous3/taggarr?tab=readme-ov-file#configuration-example)  below. 
+> Make sure to use `/tv` then `/tv2` then `/tv3` etc for multiple volumes as path to your **CONTAINER** (not host). Check out [example of yaml configs](https://github.com/BassHous3/taggarr?tab=readme-ov-file#configuration-example)  below. 
 > 3. **Media players**  
 > After tags are applied, scan TV's library metadata using `Replace all metadata` method (leave `Replace Images` unchecked).
 
@@ -152,7 +152,9 @@ services:
         - TARGET_GENRE=Anime #OPTIONAL - default is all genres
         - TARGET_LANGUAGES=english, french # Supports multiple languages, comma-separated en, fr, de, etc. are also acceptable entries
       volumes:
-        - /path/to/your/TV:/tv # Make sure to point your media path host to "/tv" container path
+        - /mnt/volume1/TV:/tv # Make sure to point your media path host to "/tv" container path
+        - /mnt/volume2/TV:/tv2
+        - /mnt/volume3/TV:/tv3
         - /var/log/taggarr:/logs # OPTIONAL - recommended path for logs
       restart: unless-stopped
       logging:
