@@ -1,7 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.4.13"
-
+__version__ = "0.4.14" #improved handling of broken nfo files
 
 import re
 import os
@@ -368,6 +367,13 @@ def get_sonarr_series(path):
         logger.warning(f"Failed to fetch Sonarr series metadata: {e}")
     return None
 
+def safe_parse_nfo(path): #function to read carefully corrupted nfo files
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+    if "</tvshow>" in content:
+        content = content.split("</tvshow>")[0] + "</tvshow>"
+    return ET.fromstring(content)
+
 
 # === MAIN FUNCTION ===
 def run_loop(opts):
@@ -444,7 +450,8 @@ def main(opts=None):
             continue
 
         try:
-            genres = [g.text.lower() for g in ET.parse(nfo_path).getroot().findall("genre")]
+            root = safe_parse_nfo(nfo_path)
+            genres = [g.text.lower() for g in root.findall("genre")]
             if TARGET_GENRE and TARGET_GENRE.lower() not in genres:
                 logger.info(f"🚫⛔ Skipping {show}: genre mismatch")
                 continue
