@@ -44,7 +44,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
     <th colspan="3" align="center">Upcoming Updates</th>
   </tr>
   <tr>
-    <th>Support for other languages</th>
+    <th>Support for all languages</th>
     <th>Support for Radarr</th>
     <th>Filter scanning by genre</th>
   </tr>
