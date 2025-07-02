@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.4.14" #improved handling of broken nfo files
+__version__ = "0.5.0" #multi-volume-support
 
 import re
 import os
@@ -21,7 +21,8 @@ load_dotenv()
 # === CONFIG ===
 SONARR_API_KEY = os.getenv("SONARR_API_KEY")
 SONARR_URL = os.getenv("SONARR_URL")
-ROOT_TV_PATH = os.getenv("ROOT_TV_PATH")
+ROOT_TV_PATHS = [f"/tv{i}" if i > 1 else "/tv" for i in range(1, 10)]
+ROOT_TV_PATHS = [p for p in ROOT_TV_PATHS if os.path.isdir(p)]
 TAGGARR_JSON_PATH = os.path.join(ROOT_TV_PATH, "taggarr.json")
 RUN_INTERVAL_SECONDS = int(os.getenv("RUN_INTERVAL_SECONDS", 7200))
 START_RUNNING = os.getenv("START_RUNNING", "true").lower() == "true"
@@ -412,11 +413,12 @@ def main(opts=None):
     taggarr = load_taggarr()
     logger.debug(f"Available paths in JSON: {list(taggarr['series'].keys())[:5]}")
 
-    for show in sorted(os.listdir(ROOT_TV_PATH)):
-        show_path = os.path.join(ROOT_TV_PATH, show)
-        show_path = os.path.abspath(show_path)
-        if not os.path.isdir(show_path):
-            continue
+    for root_path in ROOT_TV_PATHS:
+        for show in sorted(os.listdir(root_path)):
+            show_path = os.path.join(root_path, show)
+            if not os.path.isdir(show_path):
+                continue
+
         normalized_path = show_path
         show_meta = taggarr["series"].get(os.path.abspath(show_path), {})
         saved_seasons = taggarr["series"].get(normalized_path, {}).get("seasons", {})
