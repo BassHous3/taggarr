@@ -94,7 +94,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > 1. **Docker**  
 > Pull the Docker image from `docker.io/basshous3/taggarr:latest`
 > 2. **Configs**  
-> Make sure to use `/tv` then `/tv2` then `/tv3` etc for multiple volumes as path to your **CONTAINER** (not host). Check out [example of yaml configs](https://github.com/BassHous3/taggarr?tab=readme-ov-file#configuration-example)  below. 
+> Make sure to use `/tv` then `/tv2` then `/tv3` etc for multiple volumes as path to your **CONTAINER** (not host). Check out [example of yaml configs](https://github.com/BassHous3/taggarr/edit/multi-volume-support/README.md#configuration-example)  below. 
 > 3. **Media players**  
 > After tags are applied, scan TV's library metadata using `Replace all metadata` method (leave `Replace Images` unchecked).
 
