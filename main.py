@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.5.0" #multi-volume-support
+__version__ = "0.5.1" #updated multi-volume support
 
 import re
 import os
@@ -23,7 +23,6 @@ SONARR_API_KEY = os.getenv("SONARR_API_KEY")
 SONARR_URL = os.getenv("SONARR_URL")
 ROOT_TV_PATHS = [f"/tv{i}" if i > 1 else "/tv" for i in range(1, 10)]
 ROOT_TV_PATHS = [p for p in ROOT_TV_PATHS if os.path.isdir(p)]
-TAGGARR_JSON_PATH = os.path.join(ROOT_TV_PATH, "taggarr.json")
 RUN_INTERVAL_SECONDS = int(os.getenv("RUN_INTERVAL_SECONDS", 7200))
 START_RUNNING = os.getenv("START_RUNNING", "true").lower() == "true"
 QUICK_MODE = os.getenv("QUICK_MODE", "false").lower() == "true"
@@ -69,26 +68,27 @@ def setup_logging():
 logger = setup_logging()
 
 # === JSON STORAGE ===
-def load_taggarr():
-    if os.path.exists(TAGGARR_JSON_PATH):
+def load_taggarr(root_path):
+    path = os.path.join(root_path, "taggarr.json")
+    if os.path.exists(path):
         try:
-            logger.info(f"📍 taggarr.json found at {TAGGARR_JSON_PATH}")
-            with open(TAGGARR_JSON_PATH, 'r') as f:
+            logger.info(f"📍 taggarr.json found at {path}")
+            with open(path, 'r') as f:
                 data = json.load(f)
                 logger.debug(f"✅ Loaded taggarr.json with {len(data.get('series', {}))} entries.")
                 return data
         except Exception as e:
             logger.warning(f"⚠️ taggarr.json is corrupted: {e}")
-            backup_path = TAGGARR_JSON_PATH + ".bak"
-            os.rename(TAGGARR_JSON_PATH, backup_path)
+            backup_path = path + ".bak"
+            os.rename(path, backup_path)
             logger.warning(f"❌ Corrupted file moved to: {backup_path}")
-
-    logger.info("❌ No taggarr.json found — starting fresh.")
+    logger.info(f"❌ No taggarr.json found in {root_path} — starting fresh.")
     return {"series": {}}
 
 
-def save_taggarr(data):
+def save_taggarr(data, root_path):
     try:
+        path = os.path.join(root_path, "taggarr.json")
         data["version"] = __version__
         ordered_data = {"version": data["version"]}
         for k, v in data.items():
@@ -115,11 +115,11 @@ def save_taggarr(data):
             compact_json
         )
 
-        with open(TAGGARR_JSON_PATH, 'w') as f:
+        with open(path, 'w') as f:
             f.write(compact_json)
-        logger.debug("✅ taggarr.json saved successfully.")
+        logger.debug(f"✅ taggarr.json saved to {path}")
     except Exception as e:
-        logger.warning(f"⚠️ Failed to save taggarr.json: {e}")
+        logger.warning(f"⚠️ Failed to save taggarr.json to {path}: {e}")
 
 # === MEDIA TOOLS ===
 def analyze_audio(video_path):
@@ -410,7 +410,7 @@ def main(opts=None):
     if write_mode == 2:
         logger.info("Remove mode is enabled: Everything will be removed.")
 
-    taggarr = load_taggarr()
+    taggarr = load_taggarr(root_path)
     logger.debug(f"Available paths in JSON: {list(taggarr['series'].keys())[:5]}")
 
     for root_path in ROOT_TV_PATHS:
@@ -521,7 +521,7 @@ def main(opts=None):
             refresh_sonarr_series(sid, dry_run=dry_run)
             time.sleep(0.5)
 
-    save_taggarr(taggarr)
+    save_taggarr(taggarr, root_path)
     logger.info("✅ Finished Taggarr scan.")
     logger.info(f"ℹ️ You don't have all the dubs? Checkout Huntarr.io to hunt them for you!")
     logger.info(f"Next scan is in {RUN_INTERVAL_SECONDS/60/60} hours.")
