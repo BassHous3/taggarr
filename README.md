@@ -152,9 +152,9 @@ services:
         - TARGET_GENRE=Anime #OPTIONAL - default is all genres
         - TARGET_LANGUAGES=english, french # Supports multiple languages, comma-separated en, fr, de, etc. are also acceptable entries
       volumes:
-        - /mnt/volume1/TV:/tv # Make sure to point your media path host to "/tv" container path
-        - /mnt/volume2/TV:/tv2
-        - /mnt/volume3/TV:/tv3
+        - /your/path/volume1:/tv # Make sure to point your media path host to "/tv" as shown
+        - /your/path/volume2:/tv2
+        - /your/path/volume3:/tv3
         - /var/log/taggarr:/logs # OPTIONAL - recommended path for logs
       restart: unless-stopped
       logging:
