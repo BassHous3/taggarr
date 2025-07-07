@@ -33,7 +33,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 
 
 <br></br>
-[![Discord](https://img.shields.io/discord/1387237436765241344?color=738ad6&label=Discord&logo=discord&logoColor=7289DA)](https://discord.com/invite/uggq7JQk89) Need a hand? Have any ideas? Or perhaps feeling some dev vibes? You can now join the Discord server!
+[![Discord](https://img.shields.io/badge/Discord-chat-MH2e2eb.svg?style=flat-square)](https://discord.com/invite/uggq7JQk89) Need a hand? Have any ideas? Or perhaps feeling some dev vibes? You can now join the Discord server!
 
 <br>
 
@@ -49,15 +49,19 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
     <th>Filter scanning by genre</th>
   </tr>
   <tr>
-    <td align="center"><img src="https://img.shields.io/badge/Status-Ready-green?style=flat" alt="Not Ready" /></td>
-    <td align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat" alt="Not Ready" /></td>
-    <td align="center"><img src="https://img.shields.io/badge/Status-Ready-green?style=flat" alt="Ready" /></td>
+    <td align="center"><img src="https://img.shields.io/badge/Status-Ready-green?style=flat-square" /></td>
+    <td align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat-square" /></td>
+    <td align="center"><img src="https://img.shields.io/badge/Status-Ready-green?style=flat-square" /></td>
   </tr>
     <tr>
-    <th colspan="3" align="center">Support for multiple volumes</th>
+    <th colspan="1" align="center">Support for multiple volumes</th>
+    <th colspan="1" align="center">UI</th>
+    <th colspan="1" align="center">Tag in genre</th>
   </tr>
   <tr>
-    <th colspan="3" align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat" alt="Not Ready" /></td>
+    <th colspan="1" align="center"><img src="https://img.shields.io/badge/Status-In%20Progress-orange?style=flat-square" /></td>
+    <th colspan="1" align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat-square" /></td>
+    <th colspan="1" align="center"><img src="https://img.shields.io/badge/Status-Experimental-yellow?style=flat-square" /></td>
   </tr>
 </table>
 
