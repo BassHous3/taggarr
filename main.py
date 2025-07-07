@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.4.14" #improved handling of broken nfo files
+__version__ = "0.4.15" #improved tagging logic. 
 
 import re
 import os
@@ -247,17 +247,17 @@ def determine_tag_and_stats(show_path, show, quick=False): #tag method handling 
 
     for season in sorted(season_stats.keys()):
         seasons[season] = season_stats[season]
+    final_statuses = [s["status"] for s in seasons.values()]
+
     if has_wrong_dub:
         return TAG_WRONG_DUB, seasons
-    elif all(s["status"] == "fully-dub" for s in seasons.values()):
-        if len(TARGET_LANGUAGES) == 1:
-            return TAG_DUB, seasons
-        else:
-            return TAG_DUB, seasons
-    elif any(s["status"] == "semi-dub" for s in seasons.values()):
+    elif all(s == "fully-dub" for s in final_statuses):
+        return TAG_DUB, seasons
+    elif any(s in ("fully-dub", "semi-dub") for s in final_statuses):
         return TAG_SEMI, seasons
 
-    return None, seasons 
+    return None, seasons
+
 
 
 # === LANGUAGE HANDLING ===
