@@ -157,6 +157,7 @@ services:
         - LOG_LEVEL=INFO #OPTIONAL - DEBUG/INFO/WARNING/ERROR
         - TARGET_GENRE=Anime #OPTIONAL - default is all genres
         - TARGET_LANGUAGES=english, french # Supports multiple languages, comma-separated en, fr, de, etc. are also acceptable entries
+        - ADD_TAG_TO_GENRE=true #OPTIONAL
       volumes:
         - /path/to/your/TV:/tv # Make sure to point your media path host to "/tv" container path
         - /var/log/taggarr:/logs # OPTIONAL - recommended path for logs
