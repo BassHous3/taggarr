@@ -30,6 +30,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > - `DUB` The show contains ALL of your target languages.
 > - `SEMI-DUB` The show missing at least one of your target languages or some episodes are missing the dub.
 > - `WRONG-DUB` The show is missing your target languages and contains another language (excluding original language).
+> - `ADD_TAG_TO_GENRE` The tag list in the media players can be massive. This function will add the tag `Dub` in the genre section only for `DUB` shows. From version [0.4.19](https://github.com/BassHous3/taggarr/releases/tag/0.4.19).
 
 
 <br></br>
@@ -91,7 +92,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > - `WRITE_MODE=1` Rewrites everything, all tags and JSON file.
 > - `WRITE_MODE=2` Removes everything, all tags and JSON file.
 > - `START_RUNNING` `(Bool)` Start the container without initiating scan for CLI usage.
-> - `ADD_TAG_TO_GENRE` `(Bool)` The tag list in the media players can be massive. This feature will add the tag `Dub` in the genre section only for `DUB` shows.
+> - `ADD_TAG_TO_GENRE` `(Bool)` Adds the tag `Dub` in the genre section only for `DUB` shows.
 
 
 > [!IMPORTANT]
