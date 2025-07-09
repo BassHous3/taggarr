@@ -33,7 +33,8 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 
 
 <br></br>
-[![Discord](https://img.shields.io/badge/Discord-chat-MH2e2eb.svg?style=flat-square)](https://discord.com/invite/uggq7JQk89) Need a hand? Have any ideas? Or perhaps feeling some dev vibes? You can now join the Discord server!
+[![Docker Pulls](https://img.shields.io/docker/pulls/basshous3/taggarr.svg?style=flat-square)](https://hub.docker.com/r/basshous3/taggarr) 
+[![Discord](https://img.shields.io/badge/discord-chat-MH2e2eb.svg?style=flat-square)](https://discord.com/invite/uggq7JQk89) Need a hand? Have any ideas? Or perhaps feeling some dev vibes? You can now join the Discord server!
 
 <br>
 
