@@ -62,7 +62,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
   <tr>
     <th colspan="1" align="center"><img src="https://img.shields.io/badge/Status-In%20Progress-orange?style=flat-square" /></td>
     <th colspan="1" align="center"><img src="https://img.shields.io/badge/Status-Not%20Ready-red?style=flat-square" /></td>
-    <th colspan="1" align="center"><img src="https://img.shields.io/badge/Status-Experimental-yellow?style=flat-square" /></td>
+    <th colspan="1" align="center"><img src="https://img.shields.io/badge/Status-Ready-green?style=flat-square" /></td>
   </tr>
 </table>
 
@@ -91,6 +91,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > - `WRITE_MODE=1` Rewrites everything, all tags and JSON file.
 > - `WRITE_MODE=2` Removes everything, all tags and JSON file.
 > - `START_RUNNING` `(Bool)` Start the container without initiating scan for CLI usage.
+> - `ADD_TAG_TO_GENRE` `(Bool)` The tag list in the media players can be massive. This feature will add the tag `Dub` in the genre section only for `DUB` shows.
 
 
 > [!IMPORTANT]
