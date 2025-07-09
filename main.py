@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.4.15" #improved tagging logic. 
+__version__ = "0.4.19" #added option to tag in genre
 
 import re
 import os
@@ -35,6 +35,7 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 LOG_PATH = os.getenv("LOG_PATH", "/logs")
 TARGET_GENRE = os.getenv("TARGET_GENRE")
 TARGET_LANGUAGES = [lang.strip().lower() for lang in os.getenv("TARGET_LANGUAGES", "en").split(",")]
+ADD_TAG_TO_GENRE = os.getenv("ADD_TAG_TO_GENRE", "false").lower() == "true"
 
 
 # === LOGGING ===
@@ -504,6 +505,48 @@ def main(opts=None):
                 logger.info(f"Removing all tags from {show} since it's original (no tag)")
                 for t in [TAG_DUB, TAG_SEMI, TAG_WRONG_DUB]:
                     tag_sonarr(sid, t, remove=True, dry_run=dry_run)
+
+        # Add <genre>Dub</genre> to .nfo if ADD_TAG_TO_GENRE is true and it's fully dubbed
+        if ADD_TAG_TO_GENRE:
+            try:
+                tree = ET.parse(nfo_path)
+                root = tree.getroot()
+                genres = [g.text.strip().lower() for g in root.findall("genre") if g.text]
+
+                # 💡 Early exit if no changes needed
+                if (tag == TAG_DUB and "dub" in genres) or (tag != TAG_DUB and "dub" not in genres):
+                    logger.debug(f"ℹ️ No NFO genre update needed for {show}")
+                else:
+                    modified = False
+
+                    if tag == TAG_DUB and "dub" not in genres:
+                        new_genre = ET.Element("genre")
+                        new_genre.text = "Dub"
+                        first_genre = root.find("genre")
+                        if first_genre is not None:
+                            root.insert(list(root).index(first_genre), new_genre)
+                        else:
+                            root.append(new_genre)
+                        modified = True
+                        logger.info(f"📄 Will add <genre>Dub</genre> to NFO for {show}")
+
+                    elif tag != TAG_DUB and "dub" in genres:
+                        for g in root.findall("genre"):
+                            if g.text and g.text.strip().lower() == "dub":
+                                root.remove(g)
+                                modified = True
+                        logger.info(f"📄 Will remove <genre>Dub</genre> from NFO for {show}")
+
+                    if modified and not dry_run:
+                        ET.indent(tree, space="  ")
+                        tree.write(nfo_path, encoding="utf-8", xml_declaration=False)
+                    elif modified and dry_run:
+                        logger.info(f"[Dry Run] Would update NFO file for {show}")
+
+            except Exception as e:
+                logger.warning(f"❌ Failed to update NFO genre for {show}: {e}")
+
+
 
         taggarr["series"][normalized_path] = {
             "display_name": show,
