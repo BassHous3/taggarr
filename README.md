@@ -103,7 +103,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > 2. **Configs**  
 > Make sure to use `/tv` as path to your **CONTAINER** (not host). Check out [example of yaml configs](https://github.com/BassHous3/taggarr?tab=readme-ov-file#configuration-example)  below. 
 > 3. **Media players**  
-> After tags are applied, scan TV's library metadata using `Replace all metadata` method (leave `Replace Images` unchecked).
+> After tags are applied they should work in the media players, if not, scan TV's library metadata using `Replace all metadata` method (leave `Replace Images` unchecked).
 
 <br>
 
