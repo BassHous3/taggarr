@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.4.19" #added option to tag in genre
+__version__ = "0.4.20" #added persistent tagging 
 
 import re
 import os
@@ -55,9 +55,9 @@ def setup_logging():
     stream_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
-    logger.info(f"🏷️ Taggarr - {__description__}")
+    #logger.info(f"🏷️ Taggarr - {__description__}")
     time.sleep(1)
-    logger.info(f"🏷️ Taggarr - v{__version__} started.")
+    #logger.info(f"🏷️ Taggarr - v{__version__} started.")
     time.sleep(3)
     logger.debug(f"Log file created: {log_file}")
     size_bytes = os.path.getsize(log_file)
@@ -375,6 +375,48 @@ def safe_parse_nfo(path): #function to read carefully corrupted nfo files
         content = content.split("</tvshow>")[0] + "</tvshow>"
     return ET.fromstring(content)
 
+# === Tagging ====
+
+def update_nfo_tag(nfo_path, tag_value, dry_run=False):
+    """
+    Updates <tag> in the NFO file.
+    Ensures the provided tag_value is the first <tag> in the list.
+    Removes old tags from this system (dub, semi-dub, wrong-dub).
+    """
+    try:
+        tree = ET.parse(nfo_path)
+        root = tree.getroot()
+
+        # Tags to manage
+        known_tags = {"dub", "semi-dub", "wrong-dub"}
+
+        # Remove any existing known tags
+        old_tags = root.findall("tag")
+        for t in old_tags:
+            if t.text and t.text.strip().lower() in known_tags:
+                root.remove(t)
+
+        # Add new tag as first tag
+        new_tag = ET.Element("tag")
+        new_tag.text = tag_value
+        insert_index = 0
+
+        # Insert before existing <tag> if any
+        for i, elem in enumerate(root):
+            if elem.tag == "tag":
+                insert_index = i
+                break
+        root.insert(insert_index, new_tag)
+
+        if not dry_run:
+            ET.indent(tree, space="  ")
+            tree.write(nfo_path, encoding="utf-8", xml_declaration=False)
+            logger.info(f"🏷️ Updated <tag>{tag_value}</tag> in NFO: {os.path.basename(nfo_path)}")
+        else:
+            logger.info(f"[Dry Run] Would update <tag>{tag_value}</tag> in NFO: {os.path.basename(nfo_path)}")
+    except Exception as e:
+        logger.warning(f"❌ Failed to update <tag> in NFO: {e}")
+
 
 # === MAIN FUNCTION ===
 def run_loop(opts):
@@ -383,6 +425,10 @@ def run_loop(opts):
         time.sleep(RUN_INTERVAL_SECONDS)
 
 def main(opts=None):
+    logger.info(f"🏷️ Taggarr - {__description__}")
+    time.sleep(1)
+    logger.info(f"🏷️ Taggarr - v{__version__} started.")
+    time.sleep(1)
     logger.info("Starting Taggarr scan...")
     time.sleep(5)
     if opts is None:
@@ -545,7 +591,9 @@ def main(opts=None):
 
             except Exception as e:
                 logger.warning(f"❌ Failed to update NFO genre for {show}: {e}")
-
+        # Unsures <tag>dub</tag> to .nfo
+        if tag in [TAG_DUB, TAG_SEMI, TAG_WRONG_DUB]:
+            update_nfo_tag(nfo_path, tag, dry_run=dry_run)
 
 
         taggarr["series"][normalized_path] = {
