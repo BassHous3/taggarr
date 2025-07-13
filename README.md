@@ -110,8 +110,6 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 ## IMPORTANT & DISCLAIMER
 
 > [!WARNING]
-> - Currently supporting only English audio as the "correct" dub and Japanese as Original Language. Support for other languages will come in the upcoming updates.
->    
 > - Currently supporting only Sonarr. Support for Radarr will come in the upcoming updates as well.
 > - This project is still in very early stages and can have bugs. Currently only tested on Linux.
 > - Coding is only a hobby of mine and I am still learning, use this program at your own discretion.
