@@ -37,7 +37,8 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 [![GitHub last commit](https://img.shields.io/github/last-commit/BassHous3/taggarr?style=for-the-badge&logo=github)](https://github.com/BassHous3/taggarr)
 [![Latest tag](https://img.shields.io/docker/v/basshous3/taggarr?style=for-the-badge&logo=docker)](https://hub.docker.com/r/basshous3/taggarr)
 [![Docker pulls](https://img.shields.io/docker/pulls/basshous3/taggarr?style=for-the-badge&logo=docker)](https://hub.docker.com/r/basshous3/taggarr)
-[![Discord](https://img.shields.io/discord/discord-chat.svg?style=for-the-badge&logo=discord)](https://discord.com/invite/uggq7JQk89)
+[![Discord](https://img.shields.io/discord/1387237436765241344?style=for-the-badge&logo=discord)](https://discord.com/invite/uggq7JQk89)
+
 <br></br>
 
 <div align="center">
