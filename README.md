@@ -85,7 +85,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > - `TARGET_GENRE` `(Str)` Filter scan by genre. ie. `Anime`.
 > - `TAG_DUB` `(Str)` Optional custom tag.
 > - `TAG_SEMI` `(Str)` Optional custom tag.
-> - `TAG_WRONG` `(Str)` Optional custom tag.
+> - `TAG_WRONG_DUB` `(Str)` Optional custom tag.
 > - `RUN_INTERVAL_SECONDS` `(Int)` Custom time interval. Default is every 2 hours.
 > - `DRY_RUN` `(Bool)` Not sure? Try it first, without writing any tags, JSON file will still be saved.
 > - `WRITE_MODE` `(Int)` Something not working or changed your mind? Don't worry I got you covered.
