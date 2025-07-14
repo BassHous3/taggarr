@@ -6,6 +6,8 @@ services:
       environment:
         - SONARR_API_KEY=your_api_key #REQUIRED
         - SONARR_URL=http://sonarr:8989 #REQUIRED
+        - RADARR_API_KEY=your_api_key #REQUIRED
+        - RADARR_URL=http://radarr:7878 #REQUIRED
         - RUN_INTERVAL_SECONDS=7200 #OPTIONAL - default is 2 hours.
         - START_RUNNING=true        
         - QUICK_MODE=false
@@ -16,9 +18,10 @@ services:
         - TAG_WRONG_DUB=wrong-dub
         - LOG_LEVEL=INFO #OPTIONAL - DEBUG/INFO/WARNING/ERROR
         - TARGET_GENRE=Anime #OPTIONAL - default is all genres
-        - TARGET_LANGUAGES=english, french # Supports multiple languages, comma-separated en, fr, de, etc. are also acceptable entries
+        - TARGET_LANGUAGES=english, italian # Supports multiple languages, comma-separated en, fr, de, etc. are also acceptable entries
       volumes:
         - /path/to/your/TV:/tv # Make sure to point your media path host to "/tv" container path
+        - /path/to/your/Movies:/movies # Make sure to point your media path host to "/tv" container path
         - /var/log/taggarr:/logs # OPTIONAL - recommended path for logs
       restart: unless-stopped
       logging:
