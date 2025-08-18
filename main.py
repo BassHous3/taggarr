@@ -456,6 +456,7 @@ def main(opts=None):
     if write_mode == 2:
         logger.info("Remove mode is enabled: Everything will be removed.")
 
+    current_mtime = 0
     taggarr = load_taggarr()
     logger.debug(f"Available paths in JSON: {list(taggarr['series'].keys())[:5]}")
 
@@ -631,4 +632,5 @@ if __name__ == '__main__':
     else:
         logger.debug("START_RUNNING is false and no CLI args passed. Waiting for commands...")
         while True:
+
             time.sleep(RUN_INTERVAL_SECONDS)
