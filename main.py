@@ -456,6 +456,7 @@ def main(opts=None):
     if write_mode == 2:
         logger.info("Remove mode is enabled: Everything will be removed.")
 
+    current_mtime = 0
     taggarr = load_taggarr()
     logger.debug(f"Available paths in JSON: {list(taggarr['series'].keys())[:5]}")
 
