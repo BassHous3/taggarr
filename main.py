@@ -633,3 +633,4 @@ if __name__ == '__main__':
         logger.debug("START_RUNNING is false and no CLI args passed. Waiting for commands...")
         while True:
             time.sleep(RUN_INTERVAL_SECONDS)
+            
