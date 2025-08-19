@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.4.20" #added persistent tagging 
+__version__ = "0.4.21" #current_mtime update by lavacano
 
 import re
 import os
