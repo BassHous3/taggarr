@@ -16,6 +16,8 @@
 > - **Or not sure if Sonarr got the right dub?**
 >
 > **Don't worry, I got you covered.**
+> 
+> **So finally.. you'll be able to filter your dubbed shows.**
 
 Started this project for the exact same questions. I felt other people could make use of it as well and here we are.
 
