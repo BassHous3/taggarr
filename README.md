@@ -18,7 +18,7 @@
 >
 > **Don't worry, I got you covered.**
 > 
-> **So finally.. you'll be able to filter your dubbed shows.**
+> **So finally.. you'll be able to filter by dubbed shows.**
 >
 > <img width="158" height="386" alt="image" src="https://github.com/user-attachments/assets/ee3a6357-668f-436b-8afe-6425647fb87a" />
 
