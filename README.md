@@ -77,13 +77,14 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 </div>
 <br>
 
-<h3 align="center"> Found this project helpful? Smash the star ⭐️ at the top right corner. </h3> 
+<h3 align="center"> Found this project helpful? Hit the star ⭐️ at the top right corner. </h3> 
 <br>
 
 </div>
-<h3 align="center"> <a href="https://ko-fi.com/basshouse" target="_blank"><img src="https://cdn.prod.website-files.com/5c14e387dab576fe667689cf/670f5a0172b90570b1c21dab_kofi_logo.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 150px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a> </h3> 
-<h3 align="center"> Support me with a cup of coffee, every little helps. </h3> 
-<br><br>
+
+<h3 align="center"> Do you appreciate the time and effort it took to make this?  </h3> 
+<h3 align="center"> You can support me with a cup of coffee, every little helps. </h3> 
+<h3 align="center"> <a href="https://ko-fi.com/basshouse" target="_blank"><img src="https://cdn.prod.website-files.com/5c14e387dab576fe667689cf/670f5a0172b90570b1c21dab_kofi_logo.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 150px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a> </h3> <br><br>
 
 ## INFO & QUICK START
 > [!NOTE]
