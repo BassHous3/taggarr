@@ -90,7 +90,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > [!NOTE]
 > **Features:**
 > - Taggarr will save the information of your media in a JSON file located at the root folder of your TV media.
-> - Taggarr does not scan the audio of your content. Instead, it reads the name of the audio tracks.
+> - Taggarr uses a lightweight scanning method, it reads the name of audio tracks. It DOES NOT scan the audio of your content.
 > - Once your library was scanned and indexed in the JSON file, it will only scan for new or modified folders.
 > - `QUICK_MODE` `(Bool)` Checks only first video of every season.
 > - `TARGET_LANGUAGES` `(Str)` Seperated via comma, you can add multiple languages as your target.
