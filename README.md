@@ -111,11 +111,13 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > [!IMPORTANT]
 > **Quick Start:**
 >
-> 1. **Docker**  
+> 1. **Sonarr**  
+> Make sure you have `METADATA` turned on with KODI/Emby Standard and all checkboxes are turned on.
+> 2. **Docker**  
 > Pull the Docker image from `docker.io/basshous3/taggarr:latest`
-> 2. **Configs**  
+> 3. **Configs**  
 > Make sure to use `/tv` as path to your **CONTAINER** (not host). Check out [example of yaml configs](https://github.com/BassHous3/taggarr?tab=readme-ov-file#configuration-example)  below. 
-> 3. **Media players**  
+> 4. **Media players**  
 > After tags are applied they should work in the media players, if not, scan TV's library metadata using `Replace all metadata` method (leave `Replace Images` unchecked).
 
 <br>
