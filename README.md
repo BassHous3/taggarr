@@ -38,6 +38,18 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > - `ADD_TAG_TO_GENRE` The tag list in the media players can be massive. This function will add the tag `Dub` in the genre section only for `DUB` shows. From version [0.4.19](https://github.com/BassHous3/taggarr/releases/tag/0.4.19).
 
 
+> [!IMPORTANT]
+> **Quick Start:**
+>
+> 1. **Sonarr**  
+> Make sure you have `METADATA` turned on with KODI/Emby Standard and all checkboxes are turned on.
+> 2. **Docker**  
+> Pull the Docker image from `docker.io/basshous3/taggarr:latest`
+> 3. **Configs**  
+> Make sure to use `/tv` as path to your **CONTAINER** (not host). Check out [example of yaml configs](https://github.com/BassHous3/taggarr?tab=readme-ov-file#configuration-example)  below. 
+> 4. **Media players**  
+> After tags are applied they should work in the media players, if not, scan TV's library metadata using `Replace all metadata` method (leave `Replace Images` unchecked).
+
 <br></br>
 [![GitHub last commit](https://img.shields.io/github/release-date/BassHous3/taggarr?style=for-the-badge&logo=github)](https://github.com/BassHous3/taggarr)
 [![Latest tag](https://img.shields.io/docker/v/basshous3/taggarr?style=for-the-badge&logo=docker)](https://hub.docker.com/r/basshous3/taggarr)
@@ -106,19 +118,6 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > - `WRITE_MODE=2` Removes everything, all tags and JSON file.
 > - `START_RUNNING` `(Bool)` Start the container without initiating scan for CLI usage.
 > - `ADD_TAG_TO_GENRE` `(Bool)` Adds the tag `Dub` in the genre section only for `DUB` shows.
-
-
-> [!IMPORTANT]
-> **Quick Start:**
->
-> 1. **Sonarr**  
-> Make sure you have `METADATA` turned on with KODI/Emby Standard and all checkboxes are turned on.
-> 2. **Docker**  
-> Pull the Docker image from `docker.io/basshous3/taggarr:latest`
-> 3. **Configs**  
-> Make sure to use `/tv` as path to your **CONTAINER** (not host). Check out [example of yaml configs](https://github.com/BassHous3/taggarr?tab=readme-ov-file#configuration-example)  below. 
-> 4. **Media players**  
-> After tags are applied they should work in the media players, if not, scan TV's library metadata using `Replace all metadata` method (leave `Replace Images` unchecked).
 
 <br>
 
