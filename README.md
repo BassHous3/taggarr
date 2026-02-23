@@ -28,18 +28,9 @@ Taggarr is a tool for scanning and tagging your media content whether if your me
 
 This way, you can filter your shows based on if they're dubbed or not, using tags within your Sonarr (for managing) or any media player that supports tagging (for watching). Taggarr will also save all the information in a JSON file and will tell you which show, season, episode and language is the wrong-dub.
 <br></br>
-> [!NOTE]
-> **How it Works:**
-> 
-> - `NO TAG` The show is only in its original language.
-> - `DUB` The show contains ALL of your target languages.
-> - `SEMI-DUB` The show missing at least one of your target languages or some episodes are missing the dub.
-> - `WRONG-DUB` The show is missing your target languages and contains another language (excluding original language).
-> - `ADD_TAG_TO_GENRE` The tag list in the media players can be massive. This function will add the tag `Dub` in the genre section only for `DUB` shows. From version [0.4.19](https://github.com/BassHous3/taggarr/releases/tag/0.4.19).
 
-
+## IMPORTANT + QUICK START
 > [!IMPORTANT]
-> **Quick Start:**
 >
 > 1. **Sonarr**  
 > Make sure you have `METADATA` turned on with KODI/Emby Standard and all checkboxes are turned on.
@@ -49,6 +40,15 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 > Make sure to use `/tv` as path to your **CONTAINER** (not host). Check out [example of yaml configs](https://github.com/BassHous3/taggarr?tab=readme-ov-file#configuration-example)  below. 
 > 4. **Media players**  
 > After tags are applied they should work in the media players, if not, scan TV's library metadata using `Replace all metadata` method (leave `Replace Images` unchecked).
+
+## HOW IT WORKS
+> [!NOTE]
+> 
+> - `NO TAG` The show is only in its original language.
+> - `DUB` The show contains ALL of your target languages.
+> - `SEMI-DUB` The show missing at least one of your target languages or some episodes are missing the dub.
+> - `WRONG-DUB` The show is missing your target languages and contains another language (excluding original language).
+> - `ADD_TAG_TO_GENRE` The tag list in the media players can be massive. This function will add the tag `Dub` in the genre section only for `DUB` shows. From version [0.4.19](https://github.com/BassHous3/taggarr/releases/tag/0.4.19).
 
 <br></br>
 [![GitHub last commit](https://img.shields.io/github/release-date/BassHous3/taggarr?style=for-the-badge&logo=github)](https://github.com/BassHous3/taggarr)
@@ -98,7 +98,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 <h3 align="center"> You can support me with a cup of coffee, every little helps. </h3> 
 <h3 align="center"> <a href="https://ko-fi.com/basshouse" target="_blank"><img src="https://cdn.prod.website-files.com/5c14e387dab576fe667689cf/670f5a0172b90570b1c21dab_kofi_logo.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 150px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a> </h3> <br><br>
 
-## INFO & QUICK START
+## INFO
 > [!NOTE]
 > **Features:**
 > - Taggarr will save the information of your media in a JSON file located at the root folder of your TV media.
@@ -121,7 +121,7 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 
 <br>
 
-## IMPORTANT & DISCLAIMER
+## DISCLAIMER
 
 > [!WARNING]
 > - Currently supporting only Sonarr. Support for Radarr will come in the upcoming updates as well.
