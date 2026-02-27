@@ -131,14 +131,6 @@ This way, you can filter your shows based on if they're dubbed or not, using tag
 
 <br>
 
-## CREDITS
-Special thanks for inspiration goes to:
-- [Cleanuparr](https://github.com/Cleanuparr/Cleanuparr)
-- [Huntarr](https://github.com/plexguide/Huntarr)
-- [Sonarr](https://github.com/Sonarr/Sonarr) & [Radarr](https://github.com/Radarr/Radarr)
-
-<br>
-
 
 
 ## CONFIGURATION EXAMPLE
