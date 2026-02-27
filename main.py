@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.4.21" #current_mtime update by lavacano
+__version__ = "0.4.22" #Removal of Huntarr recommendation.
 
 import re
 import os
