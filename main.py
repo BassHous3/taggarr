@@ -613,7 +613,6 @@ def main(opts=None):
 
     save_taggarr(taggarr)
     logger.info("✅ Finished Taggarr scan.")
-    logger.info(f"ℹ️ You don't have all the dubs? Checkout Huntarr.io to hunt them for you!")
     logger.info(f"Next scan is in {RUN_INTERVAL_SECONDS/60/60} hours.")
 
 
@@ -633,3 +632,4 @@ if __name__ == '__main__':
         logger.debug("START_RUNNING is false and no CLI args passed. Waiting for commands...")
         while True:
             time.sleep(RUN_INTERVAL_SECONDS)
+
