@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.4.22" #Removal of Huntarr recommendation.
+__version__ = "0.4.23" #Improved language handling with stripping.
 
 import re
 import os
@@ -263,17 +263,21 @@ def determine_tag_and_stats(show_path, show, quick=False): #tag method handling 
 
 # === LANGUAGE HANDLING ===
 
+def normalize_lang_input(code_or_name):
+    """Strip region subtag, e.g. 'en-gb' -> 'en', 'eng-US' -> 'eng'"""
+    return re.split(r'[-_]', code_or_name)[0]
+
 def get_language_aliases(code_or_name):
     aliases = set()
     if not code_or_name:
         return aliases
     code_or_name = code_or_name.lower()
-
+    bare = normalize_lang_input(code_or_name)  # strip region suffix
     try:
         lang = (
-            pycountry.languages.get(alpha_2=code_or_name)
-            or pycountry.languages.get(alpha_3=code_or_name)
-            or pycountry.languages.lookup(code_or_name)
+            pycountry.languages.get(alpha_2=bare)
+            or pycountry.languages.get(alpha_3=bare)
+            or pycountry.languages.lookup(bare)
         )
     except Exception:
         lang = None
@@ -297,15 +301,16 @@ for lang in TARGET_LANGUAGES:
 
             # shorten user entries to avoid long massive tags
 def get_primary_iso_code(lang):
+    bare = normalize_lang_input(lang.lower())
     try:
         result = (
-            pycountry.languages.get(name=lang)
-            or pycountry.languages.lookup(lang)
+            pycountry.languages.get(alpha_2=bare)
+            or pycountry.languages.get(alpha_3=bare)
+            or pycountry.languages.lookup(bare)
         )
         return result.alpha_2.lower()
     except Exception:
-        return lang.lower()[:2]  # fallback to first 2 letters
-
+        return bare[:2]
 
 # === SONARR ===
 def get_sonarr_id(path):

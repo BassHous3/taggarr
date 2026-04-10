@@ -10,7 +10,7 @@ services:
         - START_RUNNING=true        
         - QUICK_MODE=false
         - DRY_RUN=false #OPTIONAL - recommended for first time to avoid writing tags. Double check with JSON output before turning it off.
-        - WRITE_MODE=0 #OPTIONAL - 0=NONE, 1=REWRITE, 2=REMOVE
+        - WRITE_MODE=0 #OPTIONAL - 0=NORMAL OPERATION, 1=REWRITE, 2=REMOVE
         - TAG_DUB=dub
         - TAG_SEMI=semi-dub
         - TAG_WRONG_DUB=wrong-dub
