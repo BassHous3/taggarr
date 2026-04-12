@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taggarr</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0f1117;
+    --bg2:      #181b23;
+    --bg3:      #1e2130;
+    --border:   #2a2d3a;
+    --text:     #e2e4ed;
+    --muted:    #6b7080;
+    --accent:   #5b7cf7;
+    --green:    #3ecf8e;
+    --amber:    #f5a623;
+    --red:      #e05252;
+    --blue:     #5b9cf6;
+    --font-mono: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --radius:   8px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── topbar ── */
+  .topbar {
+    height: 44px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .topbar-logo {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.3px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .topbar-logo span { color: var(--accent); }
+  .topbar-version { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+  .topbar-spacer { flex: 1; }
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.3s;
+  }
+  .status-dot.running { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .status-dot.idle    { background: var(--muted); }
+
+  /* ── layout ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 480px 1fr;
+    grid-template-rows: 1fr;
+    flex: 1;
+    overflow: hidden;
+    gap: 1px;
+    background: var(--border);
+  }
+  .left-col {
+    display: grid;
+    grid-template-rows: 1fr 260px;
+    gap: 1px;
+    background: var(--border);
+    overflow: hidden;
+  }
+
+  /* ── pane ── */
+  .pane {
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .pane-header {
+    height: 36px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .ph-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .ph-spacer { flex: 1; }
+  .pane-body { flex: 1; overflow-y: auto; min-height: 0; }
+  .pane-footer {
+    border-top: 1px solid var(--border);
+    padding: 6px 10px;
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    background: var(--bg2);
+    align-items: center;
+  }
+
+  /* ── log ── */
+  .log-body {
+    padding: 8px 10px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.65;
+  }
+  .log-line { display: flex; gap: 8px; word-break: break-word; }
+  .log-time { color: var(--muted); flex-shrink: 0; font-size: 10.5px; padding-top: 1px; }
+  .log-msg { color: var(--text); }
+  .log-msg.warn  { color: var(--amber); }
+  .log-msg.ok    { color: var(--green); }
+  .log-msg.tag   { color: var(--blue); }
+  .log-msg.skip  { color: var(--muted); }
+  .log-msg.error { color: var(--red); }
+
+  /* ── settings ── */
+  .settings-body { padding: 10px; }
+  .setting-row {
+    display: grid;
+    grid-template-columns: 140px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-key {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .setting-key.protected { color: var(--amber); }
+  .setting-val {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 2px 5px;
+    width: 100%;
+    transition: border-color 0.15s, background 0.15s;
+    outline: none;
+  }
+  .setting-val:focus {
+    border-color: var(--accent);
+    background: var(--bg3);
+  }
+  .setting-val[readonly] {
+    color: var(--muted);
+    cursor: default;
+  }
+  .setting-save-btn {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .setting-row.dirty .setting-save-btn { opacity: 1; color: var(--accent); border-color: var(--accent); }
+  .setting-row.dirty .setting-val { border-color: var(--accent); background: var(--bg3); }
+  .save-all-btn {
+    margin-left: auto;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    display: none;
+  }
+  .save-all-btn.visible { display: block; }
+  .save-all-btn:hover { background: var(--accent); color: #fff; }
+
+  /* ── json ── */
+  .json-body {
+    padding: 10px 14px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.75;
+  }
+  .j-key    { color: #7eb8f7; }
+  .j-str    { color: #98c988; }
+  .j-num    { color: #f5a623; }
+  .j-bool   { color: #c792ea; }
+  .j-null   { color: var(--red); }
+  .j-line   { white-space: pre-wrap; word-break: break-all; }
+  .j-indent { padding-left: 16px; }
+
+  /* ── buttons ── */
+  .btn {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: var(--bg3); }
+  .btn.primary { border-color: var(--accent); color: var(--accent); }
+  .btn.primary:hover { background: var(--accent); color: #fff; }
+  .btn.danger  { border-color: var(--red); color: var(--red); }
+  .btn.danger:hover { background: var(--red); color: #fff; }
+
+  /* ── modal ── */
+  .modal-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    min-width: 300px;
+    max-width: 400px;
+  }
+  .modal h3 { font-size: 14px; margin-bottom: 12px; }
+  .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+  .run-options { display: flex; flex-direction: column; gap: 10px; }
+  .run-opt { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text); cursor: pointer; }
+  .run-opt input { accent-color: var(--accent); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">🏷️ Taggarr<span>UI</span></div>
+  <div class="topbar-version" id="versionBadge">v—</div>
+  <div class="topbar-spacer"></div>
+  <div class="status-pill">
+    <div class="status-dot idle" id="statusDot"></div>
+    <span id="statusText">idle</span>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- LEFT COL -->
+  <div class="left-col">
+
+    <!-- CONSOLE LOG -->
+    <div class="pane">
+      <div class="pane-header">
+        <div class="ph-dot" style="background:#3ecf8e"></div>
+        Console log
+        <div class="ph-spacer"></div>
+        <span id="logFileName" style="font-size:10px;color:var(--muted);font-family:var(--font-mono);text-transform:none;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px"></span>
+      </div>
+      <div class="pane-body">
+        <div class="log-body" id="logBody"></div>
+      </div>
+      <div class="pane-footer">
+        <button class="btn primary" onclick="openRunModal()">▶ Run now</button>
+        <button class="btn" onclick="clearLog()">Clear</button>
+        <button class="btn" id="autoScrollBtn" onclick="toggleAutoScroll()" style="margin-left:auto">↓ Auto-scroll on</button>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="pane">
+      <div class="pane-header">
+        <div class="ph-dot" style="background:#f5a623"></div>
+        Settings
+        <div class="ph-spacer"></div>
+        <button class="save-all-btn" id="saveAllBtn" onclick="saveAllDirty()">Save all</button>
+      </div>
+      <div class="pane-body">
+        <div class="settings-body" id="settingsBody">
+          <div style="color:var(--muted);padding:8px;font-size:12px">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JSON PANE -->
+  <div class="pane">
+    <div class="pane-header">
+      <div class="ph-dot" style="background:#5b9cf6"></div>
+      taggarr.json
+      <div class="ph-spacer"></div>
+      <input id="jsonSearch" type="text" placeholder="search…" oninput="searchJson()"
+        style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;
+        padding:2px 8px;font-size:11px;color:var(--text);width:140px;outline:none;">
+      <span id="jsonMeta" style="font-size:10px;color:var(--muted);text-transform:none;font-weight:400"></span>
+    </div>
+    <div class="pane-body">
+      <div class="json-body" id="jsonBody">
+        <div style="color:var(--muted)">Loading…</div>
+      </div>
+    </div>
+    <div class="pane-footer">
+      <button class="btn" onclick="copyJson()">Copy JSON</button>
+      <button class="btn" onclick="refreshJson()">↺ Refresh</button>
+      <span id="jsonRefreshedAt" style="margin-left:auto;font-size:10.5px;color:var(--muted)"></span>
+    </div>
+  </div>
+</div>
+
+<!-- RUN MODAL -->
+<div class="modal-overlay" id="runModal">
+  <div class="modal">
+    <h3>Run scan</h3>
+    <div class="run-options">
+      <label class="run-opt"><input type="checkbox" id="optQuick"> Quick mode (first episode only)</label>
+      <label class="run-opt"><input type="checkbox" id="optDryRun"> Dry run (no changes)</label>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text)">
+        Write mode
+        <select id="optWriteMode" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:12px">
+          <option value="0">0 — default</option>
+          <option value="1">1 — rewrite all</option>
+          <option value="2">2 — remove all</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeRunModal()">Cancel</button>
+      <button class="btn primary" onclick="startScan()">Run</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── state ──────────────────────────────────────────────────────────────────
+let autoScroll = true;
+let rawJson = null;
+let dirtySettings = {};
+
+// ── log streaming ──────────────────────────────────────────────────────────
+const logBody = document.getElementById('logBody');
+
+function classifyLine(msg) {
+  if (/skip|skipping/i.test(msg)) return 'skip';
+  if (/⚠️|warning|warn|failed|fallback/i.test(msg)) return 'warn';
+  if (/✅|finished|tagged as|ok/i.test(msg)) return 'ok';
+  if (/🏷️.*tagged/i.test(msg)) return 'tag';
+  if (/error|exception/i.test(msg)) return 'error';
+  return '';
+}
+
+function appendLog(text) {
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  const now = new Date().toTimeString().slice(0, 8);
+  const cls = classifyLine(text);
+  line.innerHTML = `<span class="log-time">${now}</span><span class="log-msg ${cls}">${escHtml(text)}</span>`;
+  logBody.appendChild(line);
+  if (autoScroll) logBody.parentElement.scrollTop = logBody.parentElement.scrollHeight;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function clearLog() { logBody.innerHTML = ''; }
+
+function toggleAutoScroll() {
+  autoScroll = !autoScroll;
+  document.getElementById('autoScrollBtn').textContent = `↓ Auto-scroll ${autoScroll ? 'on' : 'off'}`;
+}
+
+const evtSource = new EventSource('/api/log-stream');
+evtSource.onmessage = e => { if (e.data) appendLog(e.data); };
+evtSource.onerror = () => appendLog('[connection to log stream lost — retrying…]');
+
+function searchJson() {
+  const term = document.getElementById('jsonSearch').value.trim().toLowerCase();
+  const body = document.getElementById('jsonBody');
+
+  if (!term) {
+    // restore normal render
+    body.innerHTML = `<div class="j-line">${syntaxHighlight(rawJson)}</div>`;
+    return;
+  }
+
+  // re-render then highlight
+  const rendered = syntaxHighlight(rawJson);
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const highlighted = rendered.replace(
+    new RegExp(`(${escaped})`, 'gi'),
+    `<mark style="background:#f5a62366;color:var(--amber);border-radius:2px;">$1</mark>`
+  );
+  body.innerHTML = `<div class="j-line">${highlighted}</div>`;
+
+  // scroll to first match
+  const first = body.querySelector('mark');
+  if (first) first.scrollIntoView({ block: 'center', behavior: 'smooth' });
+
+  // update meta to show match count
+  const count = (rendered.match(new RegExp(escaped, 'gi')) || []).length;
+  document.getElementById('jsonMeta').textContent = `${count} match${count !== 1 ? 'es' : ''}`;
+}
+// ── status polling ─────────────────────────────────────────────────────────
+const statusDot  = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+
+async function pollStatus() {
+  try {
+    const r = await fetch('/api/status');
+    const d = await r.json();
+    if (d.running) {
+      statusDot.className = 'status-dot running';
+      statusText.textContent = 'scanning…';
+    } else {
+      statusDot.className = 'status-dot idle';
+      statusText.textContent = 'idle';
+    }
+    const fn = d.log_file.split('/').pop();
+    document.getElementById('logFileName').textContent = fn;
+  } catch {}
+}
+setInterval(pollStatus, 3000);
+pollStatus();
+
+// ── settings ───────────────────────────────────────────────────────────────
+const PROTECTED = ['SONARR_API_KEY'];
+const BOOL_KEYS = ['QUICK_MODE','DRY_RUN','START_RUNNING','ADD_TAG_TO_GENRE'];
+
+async function loadSettings() {
+  const r = await fetch('/api/settings');
+  if (!r.ok) { document.getElementById('settingsBody').innerHTML = '<div style="color:var(--red);padding:8px">Failed to load .env</div>'; return; }
+  const data = await r.json();
+
+  // try to grab version from json
+  if (rawJson && rawJson.version) document.getElementById('versionBadge').textContent = 'v' + rawJson.version;
+
+  const body = document.getElementById('settingsBody');
+  body.innerHTML = '';
+  dirtySettings = {};
+
+  for (const [key, val] of Object.entries(data)) {
+    const row = document.createElement('div');
+    row.className = 'setting-row';
+    row.dataset.key = key;
+
+    const isProtected = PROTECTED.includes(key);
+    const keyEl = document.createElement('div');
+    keyEl.className = 'setting-key' + (isProtected ? ' protected' : '');
+    keyEl.textContent = key;
+    keyEl.title = key;
+
+    const valEl = document.createElement('input');
+    valEl.className = 'setting-val';
+    valEl.value = val || '';
+    valEl.dataset.original = val || '';
+    if (isProtected) { valEl.readOnly = true; valEl.title = 'Protected — edit in .env directly'; }
+
+    valEl.addEventListener('input', () => {
+      const changed = valEl.value !== valEl.dataset.original;
+      row.classList.toggle('dirty', changed);
+      if (changed) dirtySettings[key] = valEl.value;
+      else delete dirtySettings[key];
+      document.getElementById('saveAllBtn').classList.toggle('visible', Object.keys(dirtySettings).length > 0);
+    });
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'setting-save-btn';
+    saveBtn.textContent = 'save';
+    saveBtn.onclick = () => saveSetting(key, valEl.value, row, valEl);
+
+    row.appendChild(keyEl);
+    row.appendChild(valEl);
+    row.appendChild(saveBtn);
+    body.appendChild(row);
+  }
+}
+
+async function saveSetting(key, value, row, input) {
+  const r = await fetch('/api/settings', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({[key]: value})
+  });
+  if (r.ok) {
+    input.dataset.original = value;
+    row.classList.remove('dirty');
+    delete dirtySettings[key];
+    document.getElementById('saveAllBtn').classList.toggle('visible', Object.keys(dirtySettings).length > 0);
+    appendLog(`[UI] Saved setting: ${key}`);
+  } else {
+    appendLog(`[UI] Failed to save setting: ${key}`);
+  }
+}
+
+async function saveAllDirty() {
+  const r = await fetch('/api/settings', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(dirtySettings)
+  });
+  if (r.ok) {
+    appendLog(`[UI] Saved ${Object.keys(dirtySettings).length} setting(s)`);
+    loadSettings();
+  } else {
+    appendLog('[UI] Failed to save settings');
+  }
+}
+
+loadSettings();
+
+// ── json viewer ────────────────────────────────────────────────────────────
+function syntaxHighlight(obj, indent) {
+  indent = indent || 0;
+  const pad = '  '.repeat(indent);
+  const pad1 = '  '.repeat(indent + 1);
+
+  if (obj === null) return `<span class="j-null">null</span>`;
+  if (typeof obj === 'boolean') return `<span class="j-bool">${obj}</span>`;
+  if (typeof obj === 'number') return `<span class="j-num">${obj}</span>`;
+  if (typeof obj === 'string') return `<span class="j-str">"${escHtml(obj)}"</span>`;
+
+  if (Array.isArray(obj)) {
+    if (obj.length === 0) return '[]';
+    const items = obj.map(v => pad1 + syntaxHighlight(v, indent + 1)).join(',\n');
+    return `[\n${items}\n${pad}]`;
+  }
+
+  if (typeof obj === 'object') {
+    const keys = Object.keys(obj);
+    if (keys.length === 0) return '{}';
+    const items = keys.map(k =>
+      `${pad1}<span class="j-key">"${escHtml(k)}"</span>: ${syntaxHighlight(obj[k], indent + 1)}`
+    ).join(',\n');
+    return `{\n${items}\n${pad}}`;
+  }
+
+  return String(obj);
+}
+
+async function refreshJson() {
+  const r = await fetch('/api/taggarr-json');
+  if (!r.ok) {
+    document.getElementById('jsonBody').innerHTML = '<div style="color:var(--red)">taggarr.json not found</div>';
+    return;
+  }
+  rawJson = await r.json();
+
+  if (rawJson.version) document.getElementById('versionBadge').textContent = 'v' + rawJson.version;
+
+  const seriesCount = Object.keys(rawJson.series || {}).length;
+  document.getElementById('jsonMeta').textContent = `${seriesCount} series`;
+
+  document.getElementById('jsonBody').innerHTML = `<div class="j-line">${syntaxHighlight(rawJson)}</div>`;
+
+  const now = new Date().toLocaleTimeString();
+  document.getElementById('jsonRefreshedAt').textContent = `refreshed ${now}`;
+  const term = document.getElementById('jsonSearch').value.trim();
+  if (term) searchJson(); // re-apply search after refresh
+}
+
+function copyJson() {
+  if (!rawJson) return;
+  navigator.clipboard.writeText(JSON.stringify(rawJson, null, 2));
+  appendLog('[UI] JSON copied to clipboard');
+}
+
+refreshJson();
+setInterval(refreshJson, 10000);
+
+// ── run modal ──────────────────────────────────────────────────────────────
+function openRunModal()  { document.getElementById('runModal').classList.add('open'); }
+function closeRunModal() { document.getElementById('runModal').classList.remove('open'); }
+
+async function startScan() {
+  closeRunModal();
+  const payload = {
+    quick:      document.getElementById('optQuick').checked,
+    dry_run:    document.getElementById('optDryRun').checked,
+    write_mode: parseInt(document.getElementById('optWriteMode').value),
+  };
+  appendLog(`[UI] Starting scan — quick=${payload.quick} dry_run=${payload.dry_run} write_mode=${payload.write_mode}`);
+  const r = await fetch('/api/run', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  if (!r.ok) {
+    const e = await r.json();
+    appendLog(`[UI] Could not start scan: ${e.error}`);
+  }
+}
+
+// close modal on overlay click
+document.getElementById('runModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeRunModal();
+});
+</script>
+</body>
+</html>

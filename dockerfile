@@ -13,7 +13,11 @@ RUN apt-get update && \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py /app/  
+COPY main.py /app/
+COPY entrypoint.sh /app/
+COPY web/ ./web/
+
+RUN chmod +x /app/entrypoint.sh
 
 # Default environment variables (override in CasaOS)
 ENV SONARR_API_KEY=""
@@ -29,7 +33,12 @@ ENV TAG_SEMI="semi-dub"
 ENV TAG_WRONG_DUB="wrong-dub"
 ENV LOG_LEVEL="INFO"
 ENV TARGET_LANGUAGES="english"
+ENV WEB_PORT="5000"
+ENV LOG_PATH="/logs"
+ENV TAGGARR_SCRIPT="/app/main.py"
+
+EXPOSE 5000
 
 # Entrypoint
-CMD ["python", "main.py"]
+CMD ["/app/entrypoint.sh"]
 

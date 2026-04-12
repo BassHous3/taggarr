@@ -1,6 +1,6 @@
 __description__ = "Dub Analysis & Tagging."
 __author__ = "BASSHOUS3"
-__version__ = "0.4.23" #Improved language handling with stripping.
+__version__ = "0.5.1" #Simple UI test
 
 import re
 import os
