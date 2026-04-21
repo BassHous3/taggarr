@@ -20,7 +20,7 @@
 > 
 > **So finally.. you'll be able to filter by dubbed shows.**
 >
-> <img width="158" height="386" alt="image" src="https://github.com/user-attachments/assets/ee3a6357-668f-436b-8afe-6425647fb87a" />
+> <img width="220" height="386" alt="image" src="https://github.com/user-attachments/assets/ee3a6357-668f-436b-8afe-6425647fb87a" />
 
 Started this project for the exact same questions. I felt other people could make use of it as well and here we are.
 
