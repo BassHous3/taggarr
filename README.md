@@ -4,8 +4,7 @@
   <img width="451px" src="https://raw.githubusercontent.com/BassHous3/taggarr/refs/heads/main/assets/logo/banner_transparent.png" alt=""></img>
   <p></p>
 </p>
-
-
+<img width="1280px" src="assets/images/UI.png" alt=""></img>
 
 
 > [!TIP]
