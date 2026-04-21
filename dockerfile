@@ -1,5 +1,5 @@
 # Use official Python image
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 # Set working directory
 WORKDIR /app
@@ -13,11 +13,12 @@ RUN apt-get update && \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py /app/
-COPY entrypoint.sh /app/
-COPY web/ ./web/
+COPY main.py .
+COPY server.py .
+COPY taggarr_ui.html .
+COPY entrypoint.sh .
 
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x entrypoint.sh
 
 # Default environment variables (override in CasaOS)
 ENV SONARR_API_KEY=""
@@ -33,12 +34,12 @@ ENV TAG_SEMI="semi-dub"
 ENV TAG_WRONG_DUB="wrong-dub"
 ENV LOG_LEVEL="INFO"
 ENV TARGET_LANGUAGES="english"
-ENV WEB_PORT="5000"
 ENV LOG_PATH="/logs"
-ENV TAGGARR_SCRIPT="/app/main.py"
+#ENV TAGGARR_SCRIPT="/app/main.py"
 
-EXPOSE 5000
+EXPOSE 7879
 
 # Entrypoint
-CMD ["/app/entrypoint.sh"]
+
+ENTRYPOINT ["./entrypoint.sh"]
 

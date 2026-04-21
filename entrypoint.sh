@@ -1,18 +1,16 @@
-#!/bin/bash
-# entrypoint.sh — starts Flask UI and taggarr scanner in the same container
+#!/bin/sh
+# entrypoint.sh
+# Starts the Taggarr scan daemon (main.py) and the UI server (server.py)
+# in parallel. If UI_ENABLED=false, only main.py is started.
 
 set -e
 
-echo "🏷️  Starting Taggarr..."
+UI_ENABLED="${UI_ENABLED:-true}"
 
-# Start Flask UI in the background
-echo "🌐 Starting web UI on port ${WEB_PORT:-5000}..."
-python3 /app/web/server.py &
-FLASK_PID=$!
+if [ "$UI_ENABLED" = "true" ]; then
+    echo "🌐 Starting Taggarr UI server..."
+    python server.py &
+fi
 
-# Start taggarr scanner (blocks, runs the loop)
-echo "🔍 Starting scanner..."
-python3 /app/main.py "$@"
-
-# If scanner exits, kill Flask too
-kill $FLASK_PID 2>/dev/null
+echo "🏷️  Starting Taggarr scan daemon..."
+exec python main.py "$@"

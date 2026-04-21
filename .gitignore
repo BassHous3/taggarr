@@ -7,4 +7,10 @@ old/
 .dockerignore
 *.py
 *.log
+*.html
 !main.py
+!taggarr_ui.html
+!server.py
+!requirements.txt
+!README.md
+!entrypoint.sh

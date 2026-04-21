@@ -1,7 +1,7 @@
 name: Taggarr
 services:
   taggarr:
-      image: docker.io/basshous3/taggarr:0.5.1
+      image: docker.io/basshous3/taggarr:0.6.0
       container_name: taggarr
       environment:
         - SONARR_API_KEY=your_api_key #REQUIRED
@@ -17,11 +17,13 @@ services:
         - LOG_LEVEL=INFO #OPTIONAL - DEBUG/INFO/WARNING/ERROR
         - TARGET_GENRE=Anime #OPTIONAL - default is all genres
         - TARGET_LANGUAGES=english, french # Supports multiple languages, comma-separated en, fr, de, etc. are also acceptable entries
+        - UI_PORT=7879
+        - UI_ENABLED=true
       volumes:
         - /path/to/your/TV:/tv # Make sure to point your media path host to "/tv" container path
         - /var/log/taggarr:/logs # OPTIONAL - recommended path for logs
       ports:
-        - 5000:5000 # OPTIONAL - only needed if you want to access the web interface
+        - 7879:7879 # OPTIONAL - only needed if you want to access the web interface
       restart: unless-stopped
       logging:
         driver: json-file

@@ -1,0 +1,860 @@
+<!-- works as inteded. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Taggarr UI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+  :root {
+    --bg:         #0d1117;
+    --panel:      #161b22;
+    --panel2:     #1c2333;
+    --border:     #2a3348;
+    --accent:     #4ea8de;
+    --accent2:    #56d364;
+    --warn:       #e3b341;
+    --danger:     #f85149;
+    --muted:      #8b949e;
+    --text:       #cdd9e5;
+    --tag-dub:    #1f6feb;
+    --tag-semi:   #9a6700;
+    --tag-wrong:  #6e1a1a;
+    --tag-none:   #2d333b;
+    --divider:    #30363d;
+    --hover:      #21262d;
+    --scan-btn:   #238636;
+    --scan-hover: #2ea043;
+    --radius:     6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px;
+    height: 48px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    user-select: none;
+  }
+  header .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  header .logo span { color: var(--text); opacity: 0.5; }
+  header .version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px 8px;
+  }
+  header .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent2);
+    box-shadow: 0 0 6px var(--accent2);
+    margin-left: auto;
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+  header .status-dot.scanning {
+    background: var(--warn);
+    box-shadow: 0 0 6px var(--warn);
+    animation: pulse 1s infinite;
+  }
+  header .status-dot.error {
+    background: var(--danger);
+    box-shadow: 0 0 6px var(--danger);
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  header .status-label { font-size: 12px; color: var(--muted); }
+
+  /* ── MAIN SPLIT ── */
+  .split-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 180px;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    height: 36px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    user-select: none;
+  }
+  .panel-header svg { opacity: 0.6; }
+  .panel-header .ph-right { margin-left: auto; display:flex; align-items:center; gap:6px; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 5px;
+    background: var(--border);
+    cursor: col-resize;
+    flex-shrink: 0;
+    transition: background 0.15s;
+    position: relative;
+  }
+  .divider:hover, .divider.dragging { background: var(--accent); }
+  .divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 1px;
+    height: 32px;
+    background: currentColor;
+    border-radius: 2px;
+    opacity: 0.5;
+  }
+
+  /* ── LEFT: CONSOLE ── */
+  #left-panel { width: 38%; }
+
+  .console-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    background: #0d1117;
+  }
+  .console-body::-webkit-scrollbar { width: 6px; }
+  .console-body::-webkit-scrollbar-track { background: transparent; }
+  .console-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .log-line {
+    display: flex;
+    gap: 10px;
+    padding: 1px 14px;
+    transition: background 0.1s;
+  }
+  .log-line:hover { background: var(--hover); }
+  .log-line.new { animation: flashIn 0.4s ease; }
+  @keyframes flashIn { from { background: #1c3a2a; } to { background: transparent; } }
+
+  .log-time  { color: var(--muted); flex-shrink: 0; font-size: 11px; opacity: 0.6; }
+  .log-level { flex-shrink: 0; width: 52px; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; }
+  .log-level.INFO  { color: var(--accent); }
+  .log-level.DEBUG { color: var(--muted); }
+  .log-level.WARNING { color: var(--warn); }
+  .log-level.WARN  { color: var(--warn); }
+  .log-level.ERROR { color: var(--danger); }
+  .log-msg { color: var(--text); word-break: break-word; }
+
+  .console-footer {
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    background: var(--panel);
+  }
+  .btn-scan {
+    flex: 1;
+    height: 34px;
+    background: var(--scan-btn);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-scan:hover   { background: var(--scan-hover); }
+  .btn-scan:active  { transform: scale(0.98); }
+  .btn-scan:disabled { background: #1c2333; color: var(--muted); cursor: not-allowed; transform: none; }
+
+  .btn-clear {
+    height: 34px;
+    padding: 0 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-clear:hover { border-color: var(--muted); color: var(--text); }
+  .btn-clear.active { border-color: var(--accent); color: var(--accent); background: #1a2a3a; }
+
+  /* ── RIGHT: OVERVIEW ── */
+  #right-panel { flex: 1; }
+
+  .overview-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    flex-shrink: 0;
+  }
+  .search-box {
+    flex: 1;
+    height: 26px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 12px;
+    padding: 0 10px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .search-box::placeholder { color: var(--muted); }
+
+  .filter-pill {
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .filter-pill:hover  { color: var(--text); border-color: var(--muted); }
+  .filter-pill.active { color: #fff; }
+  .filter-pill.all.active   { background: #21262d; border-color: var(--muted); color: var(--text); }
+  .filter-pill.dub.active   { background: #1f4f8f; border-color: #58a6ff; color: #58a6ff; }
+  .filter-pill.semi.active  { background: #4a3500; border-color: var(--warn); color: var(--warn); }
+  .filter-pill.wrong.active { background: #4a1a1a; border-color: var(--danger); color: var(--danger); }
+  .filter-pill.none.active  { background: var(--tag-none); border-color: var(--muted); color: var(--muted); }
+
+  .overview-stats {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--panel);
+  }
+  .stat-item {
+    flex: 1;
+    padding: 8px 14px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    transition: color 0.3s;
+  }
+  .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .stat-num.c-total { color: var(--text); }
+  .stat-num.c-dub   { color: #58a6ff; }
+  .stat-num.c-semi  { color: var(--warn); }
+  .stat-num.c-wrong { color: var(--danger); }
+  .stat-num.c-none  { color: var(--muted); }
+
+  .overview-body {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .overview-body::-webkit-scrollbar { width: 6px; }
+  .overview-body::-webkit-scrollbar-track { background: transparent; }
+  .overview-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── Show rows ── */
+  .show-row {
+    border-bottom: 1px solid var(--divider);
+    transition: background 0.1s;
+    cursor: pointer;
+  }
+  .show-row:hover { background: var(--hover); }
+  .show-row.expanded { background: var(--panel2); }
+
+  .show-main {
+    display: flex;
+    align-items: center;
+    padding: 9px 14px;
+    gap: 10px;
+  }
+  .show-chevron {
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: transform 0.2s;
+    font-size: 12px;
+    width: 12px;
+  }
+  .show-row.expanded .show-chevron { transform: rotate(90deg); }
+  .show-name {
+    font-size: 13px;
+    font-weight: 500;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tag-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+  .tag-badge.dub   { background: #1a3a5c; color: #58a6ff; border: 1px solid #1f6feb; }
+  .tag-badge.semi  { background: var(--tag-semi); color: var(--warn); border: 1px solid #9a6700; }
+  .tag-badge.wrong { background: var(--tag-wrong); color: var(--danger); border: 1px solid #6e1a1a; }
+  .tag-badge.none  { background: var(--tag-none); color: var(--muted); border: 1px solid var(--border); }
+
+  .show-meta {
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .show-detail {
+    display: none;
+    padding: 0 14px 12px 36px;
+    border-top: 1px solid var(--border);
+    background: var(--panel2);
+  }
+  .show-row.expanded .show-detail { display: block; }
+
+  .detail-orig-lang {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    padding-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .detail-orig-lang span { color: var(--accent); }
+
+  .season-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .season-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+  }
+  .season-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+  .season-name { font-size: 12px; font-weight: 600; color: var(--text); text-transform: capitalize; }
+  .season-status {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .season-status.fully-dub { background: #1a3a5c; color: #58a6ff; }
+  .season-status.semi-dub  { background: #4a3500; color: var(--warn); }
+  .season-status.wrong-dub { background: #4a1a1a; color: var(--danger); }
+  .season-status.original  { background: var(--tag-none); color: var(--muted); }
+
+  .season-episodes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+  }
+  .ep-pill {
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .ep-pill.dub        { border-color: #1f6feb55; color: #58a6ff; background: #1a3a5c55; }
+  .ep-pill.missing    { border-color: #9a670055; color: var(--warn); background: #4a350033; }
+  .ep-pill.unexpected { border-color: #6e1a1a55; color: var(--danger); background: #4a1a1a33; }
+  .ep-pill.original   { border-color: var(--border); color: var(--muted); }
+
+  .season-counts {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .season-counts .c-dub  { color: #58a6ff; }
+  .season-counts .c-miss { color: var(--warn); }
+  .season-counts .c-unex { color: var(--danger); }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 40px;
+    text-align: center;
+    height: 200px;
+  }
+  .empty-state svg { opacity: 0.3; }
+
+  /* refresh icon btn */
+  .icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    border-radius: 3px;
+    transition: color 0.15s;
+  }
+  .icon-btn:hover { color: var(--text); }
+  .icon-btn.spinning svg { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spinBtn { to { transform: rotate(360deg); } }
+
+  /* toast */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 16px;
+    font-size: 12px;
+    color: var(--text);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 999;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <span class="logo">🏷️ TAGGARR<span> / dashboard</span></span>
+  <span class="version" id="versionBadge">v—</span>
+  <span style="margin-left:auto; display:flex; align-items:center; gap:6px;">
+    <span class="status-dot" id="statusDot"></span>
+    <span class="status-label" id="statusLabel">Connecting…</span>
+  </span>
+</header>
+
+<!-- SPLIT PANE -->
+<div class="split-container" id="splitContainer">
+
+  <!-- LEFT: CONSOLE -->
+  <div class="panel" id="left-panel">
+    <div class="panel-header">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V2zm5.854 3.146a.5.5 0 0 0-.708.708L6.793 7.5 5.146 9.146a.5.5 0 1 0 .708.708l2-2a.5.5 0 0 0 0-.708l-2-2zM8.5 9a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3z"/></svg>
+      Console
+    </div>
+    <div class="console-body" id="consoleBody"></div>
+    <div class="console-footer">
+      <button class="btn-scan" id="btnScan" onclick="triggerScan()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/><path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 7.9 2.182a.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/></svg>
+        Scan Now
+      </button>
+      <button class="btn-clear" onclick="clearConsole()">Clear</button>
+      <button class="btn-clear" id="btnAutoscroll" onclick="toggleAutoscroll()" title="Toggle autoscroll">Autoscroll</button>
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="divider" id="divider"></div>
+
+  <!-- RIGHT: OVERVIEW -->
+  <div class="panel" id="right-panel">
+    <div class="panel-header">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3z"/></svg>
+      Series Overview
+      <span class="ph-right">
+        <button class="icon-btn" id="refreshBtn" title="Reload data" onclick="loadData()">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/><path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 7.9 2.182a.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/></svg>
+        </button>
+      </span>
+    </div>
+
+    <div class="overview-toolbar">
+      <input class="search-box" type="text" placeholder="Search series…" id="searchBox" oninput="renderShows(appData.series)" />
+      <button class="filter-pill all active" data-filter="all"       onclick="setFilter('all',this)">All</button>
+      <button class="filter-pill dub"        data-filter="dub"       onclick="setFilter('dub',this)">Dub</button>
+      <button class="filter-pill semi"       data-filter="semi-dub"  onclick="setFilter('semi-dub',this)">Semi</button>
+      <button class="filter-pill wrong"      data-filter="wrong-dub" onclick="setFilter('wrong-dub',this)">Wrong</button>
+      <button class="filter-pill none"       data-filter="none"      onclick="setFilter('none',this)">Original</button>
+    </div>
+
+    <div class="overview-stats">
+      <div class="stat-item"><div class="stat-num c-total" id="s-total">—</div><div class="stat-label">Total</div></div>
+      <div class="stat-item"><div class="stat-num c-dub"   id="s-dub">—</div><div class="stat-label">Dub</div></div>
+      <div class="stat-item"><div class="stat-num c-semi"  id="s-semi">—</div><div class="stat-label">Semi-Dub</div></div>
+      <div class="stat-item"><div class="stat-num c-wrong" id="s-wrong">—</div><div class="stat-label">Wrong</div></div>
+      <div class="stat-item"><div class="stat-num c-none"  id="s-none">—</div><div class="stat-label">Original</div></div>
+    </div>
+
+    <div class="overview-body" id="overviewBody">
+      <div class="empty-state">
+        <svg width="32" height="32" viewBox="0 0 16 16" fill="currentColor"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
+        Loading…
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────
+let appData       = { version: "—", series: {} };
+let currentFilter = 'all';
+let sseSource     = null;
+let scanning      = false;
+let pollTimer     = null;
+let autoscroll    = true;
+
+// ── TOAST ──────────────────────────────────────────────────────────────
+function toast(msg, duration = 2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), duration);
+}
+
+// ── CONSOLE ───────────────────────────────────────────────────────────
+function log(time, level, msg) {
+  const body = document.getElementById('consoleBody');
+  const line = document.createElement('div');
+  line.className = 'log-line new';
+  // Sanitise msg — strip HTML from server, keep it plain
+  const safe = msg.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  line.innerHTML = `
+    <span class="log-time">${time}</span>
+    <span class="log-level ${level}">${level}</span>
+    <span class="log-msg">${safe}</span>`;
+  body.appendChild(line);
+  if (autoscroll) body.scrollTop = body.scrollHeight;
+  // remove flash class after animation
+  setTimeout(() => line.classList.remove('new'), 400);
+}
+
+function clearConsole() {
+  document.getElementById('consoleBody').innerHTML = '';
+}
+
+function toggleAutoscroll() {
+  autoscroll = !autoscroll;
+  const btn = document.getElementById('btnAutoscroll');
+  btn.classList.toggle('active', autoscroll);
+  btn.title = autoscroll ? 'Autoscroll on' : 'Autoscroll off';
+  if (autoscroll) {
+    const body = document.getElementById('consoleBody');
+    body.scrollTop = body.scrollHeight;
+  }
+}
+
+// ── SSE STREAM ────────────────────────────────────────────────────────
+function connectSSE() {
+  if (sseSource) sseSource.close();
+  sseSource = new EventSource('/api/logs/stream');
+
+  sseSource.onmessage = (e) => {
+    try {
+      const { time, level, msg } = JSON.parse(e.data);
+      log(time, level, msg);
+      // Server broadcasts this sentinel the moment the scan subprocess exits.
+      // This is the primary completion signal — faster than polling.
+      if (msg === '〔scan process exited〕') {
+        clearInterval(pollTimer);
+        setScanningUI(false);
+        loadData().then(() => toast('✅ Scan complete'));
+      }
+    } catch {}
+  };
+
+  sseSource.onerror = () => {
+    setStatus('error', 'Disconnected');
+    setTimeout(connectSSE, 5000);
+  };
+
+  sseSource.addEventListener('ping', () => {});
+}
+
+// ── STATUS ────────────────────────────────────────────────────────────
+function setStatus(state, label) {
+  const dot = document.getElementById('statusDot');
+  const lbl = document.getElementById('statusLabel');
+  dot.className = 'status-dot' + (state !== 'idle' ? ' ' + state : '');
+  lbl.textContent = label;
+}
+
+// ── SCAN TRIGGER ──────────────────────────────────────────────────────
+const SCAN_ICON = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/><path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 7.9 2.182a.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/></svg>`;
+const SPIN_ICON = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="animation:spinBtn 1s linear infinite"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>`;
+
+// Poll is a fallback only — SSE sentinel is the primary completion signal.
+const POLL_INTERVAL_MS = 3000;
+const POLL_TIMEOUT_MS  = 4 * 60 * 60 * 1000; // match server SCAN_TIMEOUT
+let   pollStartedAt    = 0;
+
+function startPollFallback() {
+  clearInterval(pollTimer);
+  pollStartedAt = Date.now();
+  pollTimer = setInterval(async () => {
+    if (Date.now() - pollStartedAt > POLL_TIMEOUT_MS) {
+      clearInterval(pollTimer);
+      setScanningUI(false);
+      toast('⚠️ Scan timed out');
+      return;
+    }
+    try {
+      const s = await fetch('/api/status').then(r => r.json());
+      if (!s.scanning) {
+        clearInterval(pollTimer);
+        setScanningUI(false);
+        await loadData();
+        toast('✅ Scan complete');
+      }
+    } catch {}
+  }, POLL_INTERVAL_MS);
+}
+
+function setScanningUI(on) {
+  scanning = on;
+  const btn = document.getElementById('btnScan');
+  btn.disabled = on;
+  btn.innerHTML = on
+    ? `${SPIN_ICON} Scanning…`
+    : `${SCAN_ICON} Scan Now`;
+  setStatus(on ? 'scanning' : 'idle', on ? 'Scanning' : 'Idle');
+}
+
+async function triggerScan() {
+  if (scanning) return;
+  try {
+    const r = await fetch('/api/scan', { method: 'POST' });
+    const j = await r.json();
+    if (!j.ok) { toast('⚠️ ' + (j.reason || 'Could not start scan')); return; }
+    setScanningUI(true);
+    // SSE sentinel is primary — poll is fallback in case SSE drops
+    startPollFallback();
+  } catch (e) {
+    toast('❌ Could not reach server');
+  }
+}
+
+// ── LOAD DATA ─────────────────────────────────────────────────────────
+async function loadData() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/data', { cache: 'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    appData = await r.json();
+    document.getElementById('versionBadge').textContent = 'v' + (appData.version || '—');
+    updateStats(appData.series);
+    renderShows(appData.series);
+    if (!scanning) setStatus('idle', 'Idle');
+  } catch (e) {
+    setStatus('error', 'Error loading data');
+    toast('❌ Failed to load data');
+  } finally {
+    btn.classList.remove('spinning');
+    btn.disabled = false;
+  }
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────
+function updateStats(series) {
+  const vals = Object.values(series);
+  document.getElementById('s-total').textContent = vals.length;
+  document.getElementById('s-dub').textContent   = vals.filter(s => s.tag === 'dub').length;
+  document.getElementById('s-semi').textContent  = vals.filter(s => s.tag === 'semi-dub').length;
+  document.getElementById('s-wrong').textContent = vals.filter(s => s.tag === 'wrong-dub').length;
+  document.getElementById('s-none').textContent  = vals.filter(s => !s.tag || s.tag === 'none').length;
+}
+
+// ── RENDERS ───────────────────────────────────────────────────────────
+function tagClass(tag) {
+  if (tag === 'dub')       return 'dub';
+  if (tag === 'semi-dub')  return 'semi';
+  if (tag === 'wrong-dub') return 'wrong';
+  return 'none';
+}
+function tagLabel(tag) {
+  if (tag === 'dub')       return 'DUB';
+  if (tag === 'semi-dub')  return 'SEMI';
+  if (tag === 'wrong-dub') return 'WRONG';
+  return 'ORIGINAL';
+}
+
+function renderSeasonDetail(seasons) {
+  return Object.entries(seasons).map(([name, s]) => {
+    const dubEps    = (s.dub   || []).map(e => `<span class="ep-pill dub">${e.split(':')[0]}</span>`).join('');
+    const missEps   = (s.missing_dub || []).map(e => `<span class="ep-pill missing">${e.split(':')[0]}</span>`).join('');
+    const unexpLang = (s.unexpected_languages || []).map(l => `<span class="ep-pill unexpected">${l}</span>`).join('');
+
+    const counts = [];
+    if (s.dub?.length)                  counts.push(`<span class="c-dub">▪ ${s.dub.length} dubbed</span>`);
+    if (s.missing_dub?.length)          counts.push(`<span class="c-miss">▪ ${s.missing_dub.length} missing</span>`);
+    if (s.unexpected_languages?.length) counts.push(`<span class="c-unex">▪ unexpected: ${s.unexpected_languages.join(', ')}</span>`);
+
+    const statusClass = (s.status || 'original').replace(' ', '-');
+    return `
+      <div class="season-item">
+        <div class="season-header">
+          <span class="season-name">${name}</span>
+          <span class="season-status ${statusClass}">${(s.status||'original').replace('-',' ')}</span>
+          <span style="font-size:10px;color:var(--muted);margin-left:auto;font-family:'JetBrains Mono',monospace;">${s.episodes||0} eps</span>
+        </div>
+        ${dubEps||missEps||unexpLang ? `<div class="season-episodes">${dubEps}${missEps}${unexpLang}</div>` : ''}
+        ${counts.length ? `<div class="season-counts">${counts.join('')}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderShows(series) {
+  const body      = document.getElementById('overviewBody');
+  const searchVal = document.getElementById('searchBox').value.toLowerCase();
+
+  const entries = Object.entries(series || {}).filter(([, s]) => {
+    const matchFilter = currentFilter === 'all'
+      || s.tag === currentFilter
+      || (currentFilter === 'none' && (!s.tag || s.tag === 'none'));
+    const matchSearch = !searchVal || s.display_name.toLowerCase().includes(searchVal);
+    return matchFilter && matchSearch;
+  });
+
+  if (!entries.length) {
+    body.innerHTML = `<div class="empty-state">
+      <svg width="32" height="32" viewBox="0 0 16 16" fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>
+      No series found</div>`;
+    return;
+  }
+
+  body.innerHTML = entries.map(([, s]) => {
+    const scanDate    = s.last_scan ? new Date(s.last_scan).toLocaleString() : '—';
+    const seasonCount = Object.keys(s.seasons || {}).length;
+    return `
+    <div class="show-row" onclick="toggleRow(this)">
+      <div class="show-main">
+        <span class="show-chevron">›</span>
+        <span class="show-name" title="${s.display_name}">${s.display_name}</span>
+        <span class="show-meta">${seasonCount} season${seasonCount !== 1 ? 's' : ''}</span>
+        <span class="tag-badge ${tagClass(s.tag)}">${tagLabel(s.tag)}</span>
+      </div>
+      <div class="show-detail">
+        <div class="detail-orig-lang">Original language: <span>${s.original_language || '—'}</span> · Last scan: ${scanDate}</div>
+        <div class="season-list">${renderSeasonDetail(s.seasons || {})}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleRow(el) { el.classList.toggle('expanded'); }
+
+function setFilter(val, btn) {
+  currentFilter = val;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  renderShows(appData.series);
+}
+
+// ── DIVIDER DRAG ──────────────────────────────────────────────────────
+const divider   = document.getElementById('divider');
+const leftPanel = document.getElementById('left-panel');
+const container = document.getElementById('splitContainer');
+let dragging = false;
+
+divider.addEventListener('mousedown', e => { dragging = true; divider.classList.add('dragging'); e.preventDefault(); });
+document.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const rect = container.getBoundingClientRect();
+  let pct = ((e.clientX - rect.left) / rect.width) * 100;
+  pct = Math.min(Math.max(pct, 15), 75);
+  leftPanel.style.width = pct + '%';
+});
+document.addEventListener('mouseup', () => { dragging = false; divider.classList.remove('dragging'); });
+
+// ── BOOT ─────────────────────────────────────────────────────────────
+(async () => {
+  connectSSE();
+  await loadData();
+  // Init autoscroll button state
+  document.getElementById('btnAutoscroll').classList.add('active');
+  // Check if a scan is already running (e.g. page reload mid-scan)
+  try {
+    const s = await fetch('/api/status').then(r => r.json());
+    if (s.scanning) {
+      setScanningUI(true);
+      startPollFallback();
+    }
+  } catch {}
+})();
+</script>
+</body>
+</html>
